@@ -5,6 +5,10 @@ import plotly.express as px
 import plotly.graph_objects as go
 from pathlib import Path
 import re
+from scipy import stats as scipy_stats
+from scipy.stats import skew, kurtosis
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(
@@ -13,233 +17,34 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- CSS PERSONALIZADO ---
+# --- CSS ---
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
-
-    html, body, [class*="css"] {
-        font-family: 'IBM Plex Sans', sans-serif;
-    }
-
-    h1 {
-        font-weight: 600;
-        font-size: 1.6rem;
-        letter-spacing: -0.02em;
-        color: #0f1923;
-        border-bottom: 3px solid #1a6cf0;
-        padding-bottom: 0.5rem;
-        margin-bottom: 1.5rem;
-    }
-
-    h2, h3 {
-        font-weight: 500;
-        letter-spacing: -0.01em;
-        color: #0f1923;
-    }
-
-    [data-testid="metric-container"] {
-        background: #f8f9fb;
-        border: 1px solid #e2e6ea;
-        border-left: 4px solid #1a6cf0;
-        border-radius: 4px;
-        padding: 1rem 1.2rem;
-    }
-
-    [data-testid="metric-container"] label {
-        font-size: 0.72rem;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: #6c757d;
-    }
-
+    html, body, [class*="css"] { font-family: 'IBM Plex Sans', sans-serif; }
+    h1 { font-weight: 600; font-size: 1.6rem; letter-spacing: -0.02em; color: #0f1923;
+         border-bottom: 3px solid #1a6cf0; padding-bottom: 0.5rem; margin-bottom: 1.5rem; }
+    h2, h3 { font-weight: 500; letter-spacing: -0.01em; color: #0f1923; }
+    [data-testid="metric-container"] { background: #f8f9fb; border: 1px solid #e2e6ea;
+        border-left: 4px solid #1a6cf0; border-radius: 4px; padding: 1rem 1.2rem; }
+    [data-testid="metric-container"] label { font-size: 0.72rem; font-weight: 500;
+        text-transform: uppercase; letter-spacing: 0.08em; color: #6c757d; }
     [data-testid="metric-container"] [data-testid="stMetricValue"] {
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 1.4rem;
-        color: #0f1923;
-    }
-
-    [data-testid="stSidebar"] {
-        background: #0f1923;
-    }
-
-    [data-testid="stSidebar"] * {
-        color: #c9d1d9 !important;
-    }
-
-    [data-testid="stSidebar"] h2 {
-        color: #ffffff !important;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        border-bottom: 1px solid #30363d;
-        padding-bottom: 0.5rem;
-    }
-
-    hr {
-        border: none;
-        border-top: 1px solid #e2e6ea;
-        margin: 1.5rem 0;
-    }
-
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 0;
-        border-bottom: 2px solid #e2e6ea;
-    }
-
-    .stTabs [data-baseweb="tab"] {
-        font-size: 0.82rem;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        padding: 0.6rem 1.4rem;
-        color: #6c757d;
-        border-bottom: 2px solid transparent;
-        margin-bottom: -2px;
-    }
-
-    .stTabs [aria-selected="true"] {
-        color: #1a6cf0 !important;
-        border-bottom: 2px solid #1a6cf0 !important;
-    }
+        font-family: 'IBM Plex Mono', monospace; font-size: 1.4rem; color: #0f1923; }
+    [data-testid="stSidebar"] { background: #0f1923; }
+    [data-testid="stSidebar"] * { color: #c9d1d9 !important; }
+    [data-testid="stSidebar"] h2 { color: #ffffff !important; font-size: 0.85rem;
+        text-transform: uppercase; letter-spacing: 0.1em;
+        border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; }
+    hr { border: none; border-top: 1px solid #e2e6ea; margin: 1.5rem 0; }
+    .stTabs [data-baseweb="tab-list"] { gap: 0; border-bottom: 2px solid #e2e6ea; }
+    .stTabs [data-baseweb="tab"] { font-size: 0.82rem; font-weight: 500;
+        text-transform: uppercase; letter-spacing: 0.06em; padding: 0.6rem 1.4rem;
+        color: #6c757d; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+    .stTabs [aria-selected="true"] { color: #1a6cf0 !important;
+        border-bottom: 2px solid #1a6cf0 !important; }
 </style>
 """, unsafe_allow_html=True)
-
-
-# ─────────────────────────────────────────────
-# CARREGAMENTO E PROCESSAMENTO DE DADOS
-# ─────────────────────────────────────────────
-@st.cache_data
-def load_data():
-    BASE_DIR = Path(__file__).resolve().parent
-    try:
-        ip_path  = BASE_DIR / 'IP_data.xlsx'
-        ptd_path = BASE_DIR / 'PTD_data.xlsx'
-
-        df_ip = pd.read_excel(ip_path,  na_values=['N/D', 'ND', '-'])
-        df_pt = pd.read_excel(ptd_path, na_values=['N/D', 'ND', '-'])
-
-        # ── ETL Iluminação Pública ──────────────────────────────────────────
-        df_ip['Is_Ineficiente'] = df_ip['Tipo de Lâmpada'].apply(
-            lambda x: 1 if x in ['Sódio', 'Mercúrio'] else 0
-        )
-        df_ip['Potencia_kW'] = (
-            pd.to_numeric(df_ip['Potência Instalada Total (W)'], errors='coerce').fillna(0) / 1000
-        )
-
-        # Guardar todas as colunas geográficas disponíveis para o groupby
-        colunas_geo_ip = [
-            c for c in ['Distrito', 'CodDistrito', 'Concelho', 'CodDistritoConcelho']
-            if c in df_ip.columns
-        ]
-
-        df_ip_grouped = df_ip.groupby(colunas_geo_ip).agg(
-            P_IP_Total    = ('Potencia_kW', 'sum'),
-            P_IP_Inef     = ('Potencia_kW',
-                             lambda x: x[df_ip.loc[x.index, 'Is_Ineficiente'] == 1].sum()),
-            N_Lampadas_Total = ('Tipo de Lâmpada', 'count'),
-            N_Lampadas_Inef  = ('Tipo de Lâmpada',
-                                lambda x: x.isin(['Sódio', 'Mercúrio']).sum()),
-            N_Lampadas_LED   = ('Tipo de Lâmpada',
-                                lambda x: x.str.upper().str.contains('LED', na=False).sum()),
-        ).reset_index()
-
-        # ── ETL Postos de Transformação ─────────────────────────────────────
-        def convert_utilizacao(valor):
-            if isinstance(valor, str):
-                v = valor.replace('%', '').strip()
-                if '-' in v:
-                    return float(v.split('-')[-1]) / 100
-                if '+' in v:
-                    return float(v.replace('+', '')) / 100
-                nums = re.findall(r'\d+', v)
-                if nums:
-                    return float(nums[-1]) / 100
-            elif isinstance(valor, (int, float)):
-                return float(valor)
-            return np.nan
-
-        df_pt['Util_Decimal'] = df_pt['Nível de Utilização [%]'].apply(convert_utilizacao)
-        df_pt = df_pt.dropna(subset=['Util_Decimal'])
-
-        if 'Coordenadas Geográficas' in df_pt.columns:
-            coords = df_pt['Coordenadas Geográficas'].str.split(',', expand=True)
-            df_pt['lat'] = pd.to_numeric(coords[0], errors='coerce')
-            df_pt['lon'] = pd.to_numeric(coords[1], errors='coerce')
-        else:
-            df_pt['lat'], df_pt['lon'] = np.nan, np.nan
-
-        colunas_geo_ptd = [
-            c for c in ['CodDistritoConcelho', 'Concelho'] if c in df_pt.columns
-        ]
-
-        # Escolher a chave de merge (preferir CodDistritoConcelho, fallback Concelho)
-        chave_merge = (
-            'CodDistritoConcelho'
-            if 'CodDistritoConcelho' in df_ip.columns and 'CodDistritoConcelho' in df_pt.columns
-            else 'Concelho'
-        )
-
-        df_pt_grouped = df_pt.groupby(colunas_geo_ptd).agg(
-            Cap_PTD  = ('Potência instalada [kVA]', 'sum'),
-            Util_Media = ('Util_Decimal', 'mean'),
-            N_PTDs   = ('Código de Instalação', 'count'),
-            lat      = ('lat', 'mean'),
-            lon      = ('lon', 'mean')
-        ).reset_index()
-
-        df_final = pd.merge(df_ip_grouped, df_pt_grouped, on=chave_merge, how='inner')
-
-        # ── FIX: garantir que a coluna 'Concelho' existe após o merge ───────
-        # Quando o merge é por CodDistritoConcelho, pode haver duas colunas
-        # 'Concelho_x' e 'Concelho_y'. Consolidamo-las numa única 'Concelho'.
-        if 'Concelho' not in df_final.columns:
-            if 'Concelho_x' in df_final.columns:
-                df_final['Concelho'] = df_final['Concelho_x']
-            elif 'Concelho_y' in df_final.columns:
-                df_final['Concelho'] = df_final['Concelho_y']
-            else:
-                # Último recurso: usar o código como nome
-                df_final['Concelho'] = df_final[chave_merge].astype(str)
-
-        # Limpar colunas duplicadas se existirem
-        for sufixo in ['_x', '_y']:
-            col = f'Concelho{sufixo}'
-            if col in df_final.columns:
-                df_final.drop(columns=[col], inplace=True)
-
-        return df_final, df_pt, df_ip
-
-    except Exception as e:
-        st.error(f"Erro ao carregar dados: {e}")
-        return None, None, None
-
-
-# ─────────────────────────────────────────────
-# CÁLCULO DE CENÁRIOS
-# ─────────────────────────────────────────────
-@st.cache_data
-def compute_scenario(df_base, sim_led, sim_ve_perc, sim_ve_pwr):
-    df = df_base.copy()
-
-    df['Delta_P_LED'] = df['P_IP_Inef'] * sim_led
-    df['P_IP_Antes']  = df['P_IP_Total']
-    df['P_IP_Depois'] = df['P_IP_Total'] - df['Delta_P_LED']
-
-    df['P_VE']        = df['N_PTDs'] * sim_ve_pwr * sim_ve_perc * 0.60
-
-    df['Cap_PTD_kW']  = df['Cap_PTD'] * 0.92
-    df['P_Ocupada']   = df['Cap_PTD_kW'] * df['Util_Media']
-    df['P_Folga']     = df['Cap_PTD_kW'] * (1 - df['Util_Media'])
-
-    df['D']           = df['P_Folga'] + df['Delta_P_LED'] - df['P_VE']
-    df['Viavel']      = df['D'] > 0
-    df['Taxa_Inef']   = (df['N_Lampadas_Inef'] / df['N_Lampadas_Total']) * 100
-    df['Rate_Inef']   = df['P_IP_Inef'] / df['P_IP_Total'].replace(0, np.nan)
-
-    return df
-
 
 # ─────────────────────────────────────────────
 # CORES E TEMA
@@ -252,23 +57,107 @@ COR_AMARELO  = '#f1c40f'
 COR_LARANJA  = '#FF6B35'
 
 LAYOUT_BASE = dict(
-    font_family  = 'IBM Plex Sans, sans-serif',
+    font_family   = 'IBM Plex Sans, sans-serif',
     paper_bgcolor = 'rgba(0,0,0,0)',
     plot_bgcolor  = 'rgba(0,0,0,0)',
     margin        = dict(l=10, r=10, t=40, b=10),
 )
 
+# Mapeamento CodDistrito → Nome (igual ao Jupyter)
+MAPA_DISTRITOS = {
+    1: 'Aveiro', 2: 'Beja', 3: 'Braga', 4: 'Bragança',
+    5: 'Castelo Branco', 6: 'Coimbra', 7: 'Évora', 8: 'Faro',
+    9: 'Guarda', 10: 'Leiria', 11: 'Lisboa', 12: 'Portalegre',
+    13: 'Porto', 14: 'Santarém', 15: 'Setúbal', 16: 'Viana do Castelo',
+    17: 'Vila Real', 18: 'Viseu', 20: 'Ilha da Madeira', 30: 'Açores'
+}
+
 
 # ─────────────────────────────────────────────
-# HELPER: nome do município (seguro)
+# ETL — idêntico ao Jupyter
 # ─────────────────────────────────────────────
-def get_concelho_col(df):
-    """Devolve 'Concelho' se existir, caso contrário usa o índice como string."""
-    return 'Concelho' if 'Concelho' in df.columns else None
+@st.cache_data
+def load_data():
+    BASE_DIR = Path(__file__).resolve().parent
+    try:
+        df_ip = pd.read_excel(BASE_DIR / 'IP_data.xlsx',  na_values=['N/D', 'ND', '-'])
+        df_pt = pd.read_excel(BASE_DIR / 'PTD_data.xlsx', na_values=['N/D', 'ND', '-'])
+
+        # ── ETL IP (célula 3 do Jupyter) ─────────────────────────────────────
+        df_ip['Is_Ineficiente'] = df_ip['Tipo de Lâmpada'].apply(
+            lambda x: 1 if x in ['Sódio', 'Mercúrio'] else 0)
+        df_ip['Potencia_kW'] = (
+            pd.to_numeric(df_ip['Potência Instalada Total (W)'], errors='coerce').fillna(0) / 1000)
+
+        df_ip_grouped = df_ip.groupby(['CodDistrito', 'Concelho', 'CodDistritoConcelho']).agg(
+            P_IP_Total=('Potencia_kW', 'sum'),
+            P_IP_Inef =('Potencia_kW', lambda x: x[df_ip.loc[x.index, 'Is_Ineficiente'] == 1].sum()),
+        ).reset_index()
+
+        # ── ETL PTD (célula 4 do Jupyter) ────────────────────────────────────
+        def convert_utilizacao(valor):
+            if isinstance(valor, str) and '%' in valor:
+                nums = re.findall(r'\d+', valor)
+                if nums:
+                    return float(nums[-1]) / 100
+            return np.nan
+
+        df_pt['Util_Decimal'] = df_pt['Nível de Utilização [%]'].apply(convert_utilizacao)
+        df_pt_clean = df_pt.dropna(subset=['Util_Decimal']).copy()
+
+        # Coordenadas para o mapa (extração separada, não afeta o agrupamento)
+        if 'Coordenadas Geográficas' in df_pt_clean.columns:
+            coords = df_pt_clean['Coordenadas Geográficas'].str.split(',', expand=True)
+            df_pt_clean['lat'] = pd.to_numeric(coords[0], errors='coerce')
+            df_pt_clean['lon'] = pd.to_numeric(coords[1], errors='coerce')
+        else:
+            df_pt_clean['lat'], df_pt_clean['lon'] = np.nan, np.nan
+
+        df_pt_grouped = df_pt_clean.groupby(['CodDistritoConcelho']).agg(
+            Cap_PTD    = ('Potência instalada [kVA]', 'sum'),
+            Util_Media = ('Util_Decimal', 'mean'),
+            N_PTDs     = ('Concelho', 'count'),
+            lat        = ('lat', 'mean'),
+            lon        = ('lon', 'mean')
+        ).reset_index()
+
+        # ── Merge e variáveis derivadas (célula 5 do Jupyter) ────────────────
+        df_final = pd.merge(df_ip_grouped, df_pt_grouped, on='CodDistritoConcelho', how='inner')
+
+        df_final['Delta_P_LED']       = df_final['P_IP_Inef'] * 0.65
+        df_final['P_Folga']           = (df_final['Cap_PTD'] * 0.92) * (1 - df_final['Util_Media'])
+        df_final['P_VE']              = df_final['N_PTDs'] * 22 * 0.60
+        df_final['D']                 = df_final['P_Folga'] + df_final['Delta_P_LED'] - df_final['P_VE']
+        df_final['Rate_Ineficiencia'] = df_final['P_IP_Inef'] / df_final['P_IP_Total'].replace(0, np.nan)
+        df_final['Nome_Distrito']     = df_final['CodDistrito'].map(MAPA_DISTRITOS)
+
+        return df_final, df_pt_clean, df_ip
+
+    except Exception as e:
+        st.error(f"Erro ao carregar dados: {e}")
+        return None, None, None
 
 
 # ─────────────────────────────────────────────
-# INTERFACE PRINCIPAL
+# CENÁRIOS INTERATIVOS (sidebar)
+# ─────────────────────────────────────────────
+@st.cache_data
+def compute_scenario(df_base, sim_led, sim_ve_perc, sim_ve_pwr):
+    df = df_base.copy()
+    df['Delta_P_LED'] = df['P_IP_Inef'] * sim_led
+    df['P_IP_Antes']  = df['P_IP_Total']
+    df['P_IP_Depois'] = df['P_IP_Total'] - df['Delta_P_LED']
+    df['P_VE']        = df['N_PTDs'] * sim_ve_pwr * sim_ve_perc * 0.60
+    df['Cap_PTD_kW']  = df['Cap_PTD'] * 0.92
+    df['P_Ocupada']   = df['Cap_PTD_kW'] * df['Util_Media']
+    df['P_Folga']     = df['Cap_PTD_kW'] * (1 - df['Util_Media'])
+    df['D']           = df['P_Folga'] + df['Delta_P_LED'] - df['P_VE']
+    df['Viavel']      = df['D'] > 0
+    return df
+
+
+# ─────────────────────────────────────────────
+# INTERFACE
 # ─────────────────────────────────────────────
 df_base, df_pt_raw, df_ip_raw = load_data()
 
@@ -279,543 +168,431 @@ if df_base is not None:
     # ── SIDEBAR ──────────────────────────────────────────────────────────────
     st.sidebar.markdown("## Parametrização de Cenários")
     st.sidebar.markdown("---")
-
     st.sidebar.markdown("**Iluminação Pública**")
-    sim_led = st.sidebar.slider(
-        "Eficiência de substituição LED (%)", 0, 100, 65, 5
-    ) / 100
-
+    sim_led = st.sidebar.slider("Eficiência de substituição LED (%)", 0, 100, 65, 5) / 100
     st.sidebar.markdown("**Veículos Elétricos**")
-    sim_ve_perc = st.sidebar.slider(
-        "Postos de carregamento por PTD (%)", 0, 100, 60, 5
-    ) / 100
-    sim_ve_pwr = st.sidebar.select_slider(
-        "Potência do carregador (kW)", options=[3.7, 7.4, 11, 22], value=22
-    )
+    sim_ve_perc = st.sidebar.slider("Postos de carregamento por PTD (%)", 0, 100, 60, 5) / 100
+    sim_ve_pwr  = st.sidebar.select_slider(
+        "Potência do carregador (kW)", options=[3.7, 7.4, 11, 22], value=22)
 
     df = compute_scenario(df_base, sim_led, sim_ve_perc, sim_ve_pwr)
 
-    # ── MÉTRICAS GLOBAIS ──────────────────────────────────────────────────────
-    col1, col2, col3, col4, col5 = st.columns(5)
-    col1.metric("Potência Libertada (LED)",   f"{df['Delta_P_LED'].sum():,.0f} kW")
-    col2.metric("Folga Total na Rede",        f"{df['P_Folga'].sum():,.0f} kW")
-    col3.metric("Carga Projetada (VE)",       f"{df['P_VE'].sum():,.0f} kW")
-    col4.metric("Saldo Final de Viabilidade", f"{df['D'].sum():,.0f} kW")
-    viab_pct = (df['Viavel'].sum() / len(df)) * 100 if len(df) > 0 else 0
-    col5.metric(
-        "Municípios Viáveis",
-        f"{df['Viavel'].sum()} / {len(df)}",
-        f"{viab_pct:.1f}%"
-    )
+    # ── MÉTRICAS GLOBAIS ─────────────────────────────────────────────────────
+    c1, c2, c3, c4, c5 = st.columns(5)
+    c1.metric("Potência Libertada (LED)",   f"{df['Delta_P_LED'].sum():,.0f} kW")
+    c2.metric("Folga Total na Rede",        f"{df['P_Folga'].sum():,.0f} kW")
+    c3.metric("Carga Projetada (VE)",       f"{df['P_VE'].sum():,.0f} kW")
+    c4.metric("Saldo Final de Viabilidade", f"{df['D'].sum():,.0f} kW")
+    viab_pct = df['Viavel'].sum() / len(df) * 100
+    c5.metric("Municípios Viáveis", f"{df['Viavel'].sum()} / {len(df)}", f"{viab_pct:.1f}%")
     st.markdown("---")
 
-    # ── TABS ──────────────────────────────────────────────────────────────────
     tab1, tab2, tab3, tab4, tab5 = st.tabs([
         "Perfis de Consumo",
         "Capacidade PTD & VE",
-        "Analise Exploratoria",
+        "Análise Exploratória",
         "Mapa",
         "Dados"
     ])
 
     # ════════════════════════════════════════════════════════════════════════
-    # TAB 1 — Perfis Horários de Consumo IP
+    # TAB 1 — Perfis horários (antes vs. depois)
     # ════════════════════════════════════════════════════════════════════════
     with tab1:
-        st.subheader("Perfis Horários de Consumo — Iluminação Pública")
-        st.caption(
-            "Perfil simplificado: iluminação activa entre as 18h e as 6h. "
-            "Comparação entre o estado actual e após substituição por LED."
+        st.subheader("Perfis Horários de Consumo — Iluminação Pública (Antes vs. Depois)")
+        st.info(
+            "**Nota metodológica:** Os ficheiros de dados originais não contêm séries temporais "
+            "horárias. O perfil apresentado é uma **aproximação baseada no comportamento típico da "
+            "iluminação pública** — ativa entre o pôr do sol (~18h) e o nascer do sol (~6h). "
+            "A potência total antes e depois da modernização LED é calculada a partir dos dados reais."
         )
 
         horas  = list(range(24))
         perfil = [1 if (h >= 18 or h <= 6) else 0 for h in horas]
-
         p_antes  = df['P_IP_Antes'].sum()
         p_depois = df['P_IP_Depois'].sum()
 
         fig_perfil = go.Figure()
         fig_perfil.add_trace(go.Scatter(
-            x=horas, y=[p_antes  * p for p in perfil],
-            mode='lines', name='Antes da modernização',
-            fill='tozeroy',
-            line=dict(color=COR_LARANJA, width=2),
-            fillcolor='rgba(255,107,53,0.15)'
-        ))
+            x=horas, y=[p_antes  * p for p in perfil], mode='lines',
+            name='Antes da modernização', fill='tozeroy',
+            line=dict(color=COR_LARANJA, width=2), fillcolor='rgba(255,107,53,0.15)'))
         fig_perfil.add_trace(go.Scatter(
-            x=horas, y=[p_depois * p for p in perfil],
-            mode='lines', name='Depois (LED)',
-            fill='tozeroy',
-            line=dict(color=COR_VERDE, width=2),
-            fillcolor='rgba(0,168,107,0.15)'
-        ))
+            x=horas, y=[p_depois * p for p in perfil], mode='lines',
+            name='Depois (LED)', fill='tozeroy',
+            line=dict(color=COR_VERDE, width=2), fillcolor='rgba(0,168,107,0.15)'))
         fig_perfil.update_layout(
             **LAYOUT_BASE,
             xaxis=dict(title="Hora do dia", tickmode='linear', dtick=2, gridcolor='#e9ecef'),
             yaxis=dict(title="Carga IP agregada (kW)", gridcolor='#e9ecef'),
-            legend=dict(orientation='h', y=1.05),
-        )
+            legend=dict(orientation='h', y=1.05))
         st.plotly_chart(fig_perfil, use_container_width=True)
 
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Potência antes",  f"{p_antes:,.0f} kW")
-        c2.metric("Potência depois", f"{p_depois:,.0f} kW")
-        poup_pct = ((p_antes - p_depois) / p_antes * 100) if p_antes > 0 else 0
-        c3.metric("Reducao", f"{p_antes - p_depois:,.0f} kW", f"-{poup_pct:.1f}%")
-
-        st.markdown("---")
-        st.subheader("Mix Tecnológico da Iluminação Pública")
-
-        col_mix1, col_mix2 = st.columns(2)
-        with col_mix1:
-            total_led  = df['P_IP_Total'].sum() - df['P_IP_Inef'].sum()
-            total_inef = df['P_IP_Inef'].sum()
-            fig_pie_mix = go.Figure(go.Pie(
-                labels=['LED / Eficiente', 'Sódio / Mercúrio (Ineficiente)'],
-                values=[total_led, total_inef],
-                hole=0.45,
-                marker_colors=[COR_VERDE, COR_LARANJA],
-                textinfo='percent+label',
-                textfont_size=12
-            ))
-            fig_pie_mix.update_layout(
-                **LAYOUT_BASE,
-                title='Potência por Tecnologia (kW)',
-                showlegend=False
-            )
-            st.plotly_chart(fig_pie_mix, use_container_width=True)
-
-        with col_mix2:
-            top_inef  = df.nlargest(10, 'P_IP_Inef').sort_values('P_IP_Inef', ascending=True)
-            nome_col  = get_concelho_col(top_inef)
-            y_axis    = nome_col if nome_col else top_inef.index
-            fig_inef  = px.bar(
-                top_inef, x='P_IP_Inef', y=y_axis,
-                orientation='h',
-                title='Top 10 Municípios — Potência Ineficiente (kW)',
-                labels={'P_IP_Inef': 'Potência ineficiente (kW)'},
-                color_discrete_sequence=[COR_LARANJA]
-            )
-            fig_inef.update_layout(**LAYOUT_BASE,
-                                   yaxis=dict(gridcolor='#e9ecef'),
-                                   xaxis=dict(gridcolor='#e9ecef'))
-            st.plotly_chart(fig_inef, use_container_width=True)
+        ca, cb, cc = st.columns(3)
+        ca.metric("Potência antes",  f"{p_antes:,.0f} kW")
+        cb.metric("Potência depois", f"{p_depois:,.0f} kW")
+        poup = ((p_antes - p_depois) / p_antes * 100) if p_antes > 0 else 0
+        cc.metric("Redução", f"{p_antes - p_depois:,.0f} kW", f"-{poup:.1f}%")
 
     # ════════════════════════════════════════════════════════════════════════
-    # TAB 2 — Capacidade PTD & Integração VE
+    # TAB 2 — Capacidade PTD & Cenários VE
     # ════════════════════════════════════════════════════════════════════════
     with tab2:
         st.subheader("Capacidade Instalada e Disponível nos PTD")
 
-        col_ptd1, col_ptd2 = st.columns(2)
-
-        with col_ptd1:
+        col1, col2 = st.columns(2)
+        with col1:
             top10 = df.nlargest(10, 'Cap_PTD_kW').copy()
-            if 'Concelho' not in top10.columns:
-                top10['Concelho'] = top10.index.astype(str)
             fig_cap = go.Figure()
-            fig_cap.add_trace(go.Bar(
-                x=top10['Concelho'], y=top10['P_Ocupada'],
-                name='Carga Actual', marker_color=COR_CINZA
-            ))
-            fig_cap.add_trace(go.Bar(
-                x=top10['Concelho'], y=top10['P_Folga'],
-                name='Capacidade Disponível', marker_color=COR_VERDE
-            ))
-            fig_cap.update_layout(
-                **LAYOUT_BASE,
-                barmode='stack',
+            fig_cap.add_trace(go.Bar(x=top10['Concelho'], y=top10['P_Ocupada'],
+                                     name='Carga Actual', marker_color=COR_CINZA))
+            fig_cap.add_trace(go.Bar(x=top10['Concelho'], y=top10['P_Folga'],
+                                     name='Capacidade Disponível', marker_color=COR_VERDE))
+            fig_cap.update_layout(**LAYOUT_BASE, barmode='stack',
                 title='Top 10 Municípios — Capacidade PTD (kW)',
                 xaxis=dict(title='Município', gridcolor='#e9ecef'),
                 yaxis=dict(title='Potência (kW)', gridcolor='#e9ecef'),
-                legend=dict(orientation='h', y=1.05)
-            )
+                legend=dict(orientation='h', y=1.05))
             st.plotly_chart(fig_cap, use_container_width=True)
 
-        with col_ptd2:
-            fig_hist = px.histogram(
-                df, x='Util_Media', nbins=20,
+        with col2:
+            fig_hist = px.histogram(df, x='Util_Media', nbins=20,
                 title='Distribuição do Nível de Utilização Médio dos PTD',
-                labels={'Util_Media': 'Nível de utilização', 'count': 'N.º municípios'},
-                color_discrete_sequence=[COR_AZUL]
-            )
-            fig_hist.update_layout(
-                **LAYOUT_BASE,
+                labels={'Util_Media': 'Nível de utilização'},
+                color_discrete_sequence=[COR_AZUL])
+            fig_hist.update_layout(**LAYOUT_BASE,
                 xaxis=dict(tickformat='.0%', gridcolor='#e9ecef'),
-                yaxis=dict(gridcolor='#e9ecef')
-            )
+                yaxis=dict(gridcolor='#e9ecef'))
             st.plotly_chart(fig_hist, use_container_width=True)
 
         st.markdown("---")
-        st.subheader("Cenários de Integração de Carregadores VE e Impacto na Rede")
-        st.caption(
-            f"Carregador seleccionado: **{sim_ve_pwr} kW** | "
-            f"Cobertura por PTD: **{sim_ve_perc*100:.0f}%** | "
-            f"Factor de simultaneidade: 60%"
-        )
+        st.subheader("Estimativa de Potência Libertada pelas Medidas de Eficiência")
+        top_led = df.nlargest(10, 'Delta_P_LED').sort_values('Delta_P_LED', ascending=True)
+        fig_led = px.bar(top_led, x='Delta_P_LED', y='Concelho', orientation='h',
+            title='Top 10 Municípios — Potencial de Poupança LED (kW)',
+            labels={'Delta_P_LED': 'Potência libertada (kW)', 'Concelho': ''},
+            color_discrete_sequence=[COR_AMARELO])
+        fig_led.update_layout(**LAYOUT_BASE,
+            xaxis=dict(gridcolor='#e9ecef'), yaxis=dict(gridcolor='#e9ecef'))
+        st.plotly_chart(fig_led, use_container_width=True)
 
-        col_ve1, col_ve2 = st.columns(2)
+        st.markdown("---")
+        st.subheader("Cenários de Integração de Carregadores VE e Impacto na Carga do PTD")
+        st.caption(f"Carregador: **{sim_ve_pwr} kW** | Cobertura: **{sim_ve_perc*100:.0f}%** | "
+                   f"Fator de simultaneidade: 60%")
 
-        with col_ve1:
+        col3, col4 = st.columns(2)
+        with col3:
             top10_ve = df.nlargest(10, 'Cap_PTD_kW').copy()
-            if 'Concelho' not in top10_ve.columns:
-                top10_ve['Concelho'] = top10_ve.index.astype(str)
             fig_ve = go.Figure()
-            fig_ve.add_trace(go.Bar(
-                x=top10_ve['Concelho'], y=top10_ve['P_Ocupada'],
-                name='Carga Actual', marker_color=COR_CINZA
-            ))
-            fig_ve.add_trace(go.Bar(
-                x=top10_ve['Concelho'], y=top10_ve['P_VE'],
-                name='Impacto VE', marker_color=COR_VERMELHO
-            ))
+            fig_ve.add_trace(go.Bar(x=top10_ve['Concelho'], y=top10_ve['P_Ocupada'],
+                                    name='Carga Actual', marker_color=COR_CINZA))
+            fig_ve.add_trace(go.Bar(x=top10_ve['Concelho'], y=top10_ve['P_VE'],
+                                    name='Impacto VE', marker_color=COR_VERMELHO))
             fig_ve.add_trace(go.Bar(
                 x=top10_ve['Concelho'],
                 y=(top10_ve['P_Folga'] + top10_ve['Delta_P_LED'] - top10_ve['P_VE']).clip(lower=0),
-                name='Margem Restante', marker_color=COR_VERDE
-            ))
-            fig_ve.update_layout(
-                **LAYOUT_BASE,
-                barmode='stack',
+                name='Margem Restante', marker_color=COR_VERDE))
+            fig_ve.update_layout(**LAYOUT_BASE, barmode='stack',
                 title='Impacto da Carga VE no PTD (Top 10)',
                 xaxis=dict(title='Município', gridcolor='#e9ecef'),
                 yaxis=dict(title='Potência (kW)', gridcolor='#e9ecef'),
-                legend=dict(orientation='h', y=1.05)
-            )
+                legend=dict(orientation='h', y=1.05))
             st.plotly_chart(fig_ve, use_container_width=True)
 
-        with col_ve2:
-            top_led  = df.nlargest(10, 'Delta_P_LED').sort_values('Delta_P_LED', ascending=True)
-            nome_col = get_concelho_col(top_led)
-            fig_led  = px.bar(
-                top_led,
-                x='Delta_P_LED',
-                y=nome_col if nome_col else top_led.index,
-                orientation='h',
-                title='Top 10 Municípios — Potencial de Poupança LED (kW)',
-                labels={'Delta_P_LED': 'Potência libertada (kW)', 'y': 'Município'},
-                color_discrete_sequence=[COR_AMARELO]
-            )
-            fig_led.update_layout(
-                **LAYOUT_BASE,
-                xaxis=dict(gridcolor='#e9ecef'),
-                yaxis=dict(gridcolor='#e9ecef')
-            )
-            st.plotly_chart(fig_led, use_container_width=True)
-
-        st.markdown("---")
-        st.subheader("Viabilidade por Município")
-
-        col_viab1, col_viab2 = st.columns(2)
-
-        with col_viab1:
-            viab_counts = (
-                df['Viavel']
-                .map({True: 'Suporta VE', False: 'Requer Expansão da Rede'})
-                .value_counts()
-                .reset_index()
-            )
+        with col4:
+            viab_counts = (df['Viavel'].map({True: 'Suporta VE', False: 'Requer Expansão'})
+                           .value_counts().reset_index())
             viab_counts.columns = ['Status', 'Contagem']
-            fig_pie_viab = px.pie(
-                viab_counts, names='Status', values='Contagem',
-                title='Proporção de Viabilidade dos Municípios',
+            fig_pie = px.pie(viab_counts, names='Status', values='Contagem',
+                title='Proporção de Viabilidade dos Municípios', hole=0.45,
                 color='Status',
-                color_discrete_map={
-                    'Suporta VE': COR_VERDE,
-                    'Requer Expansão da Rede': COR_VERMELHO
-                },
-                hole=0.45
-            )
-            fig_pie_viab.update_layout(**LAYOUT_BASE)
-            st.plotly_chart(fig_pie_viab, use_container_width=True)
+                color_discrete_map={'Suporta VE': COR_VERDE, 'Requer Expansão': COR_VERMELHO})
+            fig_pie.update_layout(**LAYOUT_BASE)
+            st.plotly_chart(fig_pie, use_container_width=True)
 
-        with col_viab2:
-            # ── FIX PRINCIPAL ─────────────────────────────────────────────
-            # Garantir que 'Concelho' existe antes de seleccionar as colunas
-            df_work = df.copy()
-            if 'Concelho' not in df_work.columns:
-                df_work['Concelho'] = df_work.index.astype(str)
-
-            df_saldo = df_work[['Concelho', 'D']].dropna().sort_values('D', ascending=False)
-            top5     = df_saldo.head(5)
-            bot5     = df_saldo.tail(5)
-            df_extremos = pd.concat([top5, bot5])
-            cores = [COR_VERDE if v >= 0 else COR_VERMELHO for v in df_extremos['D']]
-
-            fig_saldo = go.Figure(go.Bar(
-                x=df_extremos['Concelho'],
-                y=df_extremos['D'],
-                marker_color=cores
-            ))
-            fig_saldo.update_layout(
-                **LAYOUT_BASE,
-                title='Saldo de Viabilidade (D) — Top e Bottom 5',
-                xaxis=dict(title='Município', gridcolor='#e9ecef'),
-                yaxis=dict(title='D (kW)', gridcolor='#e9ecef'),
-                shapes=[dict(
-                    type='line', x0=-0.5, x1=len(df_extremos) - 0.5,
-                    y0=0, y1=0,
-                    line=dict(color='#6c757d', width=1.5, dash='dash')
-                )]
-            )
-            st.plotly_chart(fig_saldo, use_container_width=True)
+        df_saldo    = df[['Concelho', 'D']].dropna().sort_values('D', ascending=False)
+        df_extremos = pd.concat([df_saldo.head(5), df_saldo.tail(5)])
+        cores = [COR_VERDE if v >= 0 else COR_VERMELHO for v in df_extremos['D']]
+        fig_saldo = go.Figure(go.Bar(x=df_extremos['Concelho'], y=df_extremos['D'],
+                                     marker_color=cores))
+        fig_saldo.update_layout(**LAYOUT_BASE,
+            title='Saldo de Viabilidade (D) — Top e Bottom 5',
+            xaxis=dict(title='Município', gridcolor='#e9ecef'),
+            yaxis=dict(title='D (kW)', gridcolor='#e9ecef'),
+            shapes=[dict(type='line', x0=-0.5, x1=len(df_extremos)-0.5, y0=0, y1=0,
+                         line=dict(color='#6c757d', width=1.5, dash='dash'))])
+        st.plotly_chart(fig_saldo, use_container_width=True)
 
     # ════════════════════════════════════════════════════════════════════════
-    # TAB 3 — Análise Exploratória
+    # TAB 3 — Análise Exploratória (4.3 do enunciado, usa df_pt_raw como Jupyter)
     # ════════════════════════════════════════════════════════════════════════
     with tab3:
         st.subheader("Análise Exploratória de Dados")
 
-        col_eda1, col_eda2 = st.columns(2)
-
-        with col_eda1:
-            fig_scatter = px.scatter(
-                df, x='Taxa_Inef', y='Util_Media',
-                size='Cap_PTD_kW',
-                color='Viavel',
-                hover_name='Concelho' if 'Concelho' in df.columns else None,
-                title='Ineficiência da Iluminação vs Ocupação do PTD',
-                labels={
-                    'Taxa_Inef': 'Taxa de ineficiência IP (%)',
-                    'Util_Media': 'Utilização média PTD'
-                },
-                color_discrete_map={True: COR_VERDE, False: COR_VERMELHO}
-            )
-            fig_scatter.update_layout(
-                **LAYOUT_BASE,
-                xaxis=dict(gridcolor='#e9ecef'),
-                yaxis=dict(tickformat='.0%', gridcolor='#e9ecef'),
-                legend_title_text='Viável'
-            )
-            st.plotly_chart(fig_scatter, use_container_width=True)
-
-        with col_eda2:
-            fig_corr = px.scatter(
-                df, x='P_IP_Total', y='Cap_PTD_kW',
-                color='Viavel',
-                hover_name='Concelho' if 'Concelho' in df.columns else None,
-                title='Capacidade PTD vs Potência IP Total',
-                labels={
-                    'P_IP_Total': 'Potência IP total (kW)',
-                    'Cap_PTD_kW': 'Capacidade PTD (kW)'
-                },
-                color_discrete_map={True: COR_AZUL, False: COR_VERMELHO},
-                trendline='ols'
-            )
-            fig_corr.update_layout(
-                **LAYOUT_BASE,
-                xaxis=dict(gridcolor='#e9ecef'),
-                yaxis=dict(gridcolor='#e9ecef'),
-                legend_title_text='Viável'
-            )
-            st.plotly_chart(fig_corr, use_container_width=True)
-
-        col_eda3, col_eda4 = st.columns(2)
-
-        with col_eda3:
-            if 'Distrito' in df.columns:
-                distritos_alvo = ['Lisboa', 'Porto', 'Aveiro', 'Setúbal']
-                df_box = df[df['Distrito'].isin(distritos_alvo)]
-                if not df_box.empty:
-                    fig_box = px.box(
-                        df_box, x='Distrito', y='Util_Media',
-                        title='Distribuição do Nível de Utilização por Distrito',
-                        labels={'Util_Media': 'Utilização média'},
-                        color='Distrito',
-                        color_discrete_sequence=[COR_AZUL, COR_VERDE, COR_LARANJA, COR_CINZA]
-                    )
-                    fig_box.update_layout(
-                        **LAYOUT_BASE,
-                        showlegend=False,
-                        yaxis=dict(tickformat='.0%', gridcolor='#e9ecef'),
-                        xaxis=dict(gridcolor='#e9ecef')
-                    )
-                    st.plotly_chart(fig_box, use_container_width=True)
-                else:
-                    st.info("Sem dados para os distritos seleccionados.")
+        # 4.3.1 Mix Tecnológico
+        st.markdown("#### 4.3.1 · Mix Tecnológico da Iluminação Pública")
+        col_a, col_b = st.columns(2)
+        with col_a:
+            if df_ip_raw is not None and 'Tipo de Lâmpada' in df_ip_raw.columns:
+                df_ip_plot = df_ip_raw.copy()
+                df_ip_plot['Categoria_Grafico'] = df_ip_plot['Tipo de Lâmpada'].apply(
+                    lambda x: x if x in ['Sódio', 'Mercúrio', 'LED'] else 'Outros')
+                df_ip_plot['Potencia_kW'] = (
+                    pd.to_numeric(df_ip_plot['Potência Instalada Total (W)'], errors='coerce').fillna(0) / 1000)
+                mix_data = df_ip_plot.groupby('Categoria_Grafico')['Potencia_kW'].sum().reset_index()
+                ordem_manual = {'Sódio': 0, 'Mercúrio': 1, 'LED': 2, 'Outros': 3}
+                mix_data['Ordem'] = mix_data['Categoria_Grafico'].map(ordem_manual)
+                mix_data = mix_data.sort_values('Ordem')
+                colors_map = {'Sódio': '#ff9999', 'Mercúrio': '#ffcc99', 'LED': '#66b3ff', 'Outros': '#99ff99'}
+                fig_pie_tec = go.Figure(go.Pie(
+                    labels=mix_data['Categoria_Grafico'],
+                    values=mix_data['Potencia_kW'],
+                    hole=0.0,
+                    marker_colors=[colors_map.get(lbl) for lbl in mix_data['Categoria_Grafico']],
+                    textinfo='percent+label',
+                    textfont_size=12,
+                    pull=[0.02] * len(mix_data)
+                ))
+                fig_pie_tec.update_layout(**LAYOUT_BASE,
+                    title='Mix Tecnológico da Iluminação Pública', showlegend=True,
+                    legend=dict(orientation='h', y=-0.1))
+                st.plotly_chart(fig_pie_tec, use_container_width=True)
             else:
-                st.info("Coluna 'Distrito' não disponível no dataset consolidado.")
+                st.warning('Dados de iluminação pública não disponíveis para o mix tecnológico.')
 
-        with col_eda4:
-            fig_rel = px.scatter(
-                df, x='Delta_P_LED', y='P_Folga',
-                size='N_PTDs',
-                color='Viavel',
-                hover_name='Concelho' if 'Concelho' in df.columns else None,
-                title='Potência Libertada (LED) vs Folga Disponível na Rede',
-                labels={
-                    'Delta_P_LED': 'Potência libertada LED (kW)',
-                    'P_Folga': 'Folga na rede (kW)'
-                },
-                color_discrete_map={True: COR_VERDE, False: COR_VERMELHO}
-            )
-            fig_rel.update_layout(
-                **LAYOUT_BASE,
-                xaxis=dict(gridcolor='#e9ecef'),
-                yaxis=dict(gridcolor='#e9ecef'),
-                legend_title_text='Viável'
-            )
-            st.plotly_chart(fig_rel, use_container_width=True)
+        with col_b:
+            top10_inef = df.nlargest(10, 'P_IP_Inef').sort_values('P_IP_Inef', ascending=True)
+            fig_bar_inef = px.bar(top10_inef, x='P_IP_Inef', y='Concelho', orientation='h',
+                title='Top 10 Municípios por Potência Ineficiente (kW)',
+                labels={'P_IP_Inef': 'Potência Ineficiente (kW)', 'Concelho': ''},
+                color='P_IP_Inef', color_continuous_scale='Reds_r')
+            fig_bar_inef.update_layout(**LAYOUT_BASE, coloraxis_showscale=False,
+                xaxis=dict(gridcolor='#e9ecef'), yaxis=dict(gridcolor='#e9ecef'))
+            st.plotly_chart(fig_bar_inef, use_container_width=True)
+
+        st.markdown("---")
+
+        # 4.3.2 Boxplots por Distrito — usa df_pt_raw (PTDs individuais), como no Jupyter
+        st.markdown("#### 4.3.2 · Distribuição do Nível de Utilização dos PTDs por Distrito")
+        st.caption("Aveiro (cod. 1), Lisboa (cod. 11), Porto (cod. 13), Setúbal (cod. 15)")
+
+        col_c, col_d = st.columns(2)
+        with col_c:
+            if df_base is not None and 'CodDistrito' in df_base.columns and 'Util_Media' in df_base.columns:
+                df_box = df_base[df_base['CodDistrito'].isin([1, 11, 13, 15])].copy()
+                df_box['Distrito_Nome'] = df_box['CodDistrito'].map({1: 'Aveiro', 11: 'Lisboa', 13: 'Porto', 15: 'Setúbal'})
+
+                fig_box, ax_box = plt.subplots(figsize=(8, 5))
+                sns.boxplot(x='Distrito_Nome', y='Util_Media', data=df_box,
+                            order=['Aveiro', 'Lisboa', 'Porto', 'Setúbal'], ax=ax_box)
+                ax_box.set_title('Distribuição do Nível de Utilização dos PTDs por Distrito')
+                ax_box.set_ylabel('Utilização Média (Decimal)')
+                ax_box.set_xlabel('')
+                plt.tight_layout()
+                st.pyplot(fig_box)
+                plt.close(fig_box)
+
+                variab = df_box.groupby('Distrito_Nome')['Util_Media'].std().sort_values(ascending=False)
+                st.info(f"Distrito com maior variabilidade: "
+                        f"**{variab.index[0]}** (σ = {variab.iloc[0]:.4f})")
+            else:
+                st.warning("Dados consolidados de PTD não disponíveis.")
+
+        # 4.3.3 Outliers — usa df_pt_raw, como no Jupyter
+        with col_d:
+            st.markdown("##### 4.3.3 · Outliers nos Níveis de Ocupação da Rede")
+            util_series = (df_pt_raw['Util_Decimal'].dropna()
+                           if df_pt_raw is not None and 'Util_Decimal' in df_pt_raw.columns
+                           else df['Util_Media'].dropna())
+
+            fig_out, ax_out = plt.subplots(figsize=(8, 4))
+            sns.boxplot(x=util_series, color='lightgreen', fliersize=6, linewidth=1.5, ax=ax_out)
+            ax_out.set_title('Identificação de Outliers nos Níveis de Ocupação (PTDs)')
+            ax_out.set_xlabel('Nível de Utilização (Decimal)')
+            ax_out.axvline(x=1.0, color='red', linestyle='--', label='Capacidade Crítica (100%)')
+            ax_out.legend()
+            plt.tight_layout()
+            st.pyplot(fig_out)
+            plt.close(fig_out)
+
+            q1 = util_series.quantile(0.25); q3 = util_series.quantile(0.75)
+            iqr = q3 - q1
+            n_out = ((util_series < q1-1.5*iqr) | (util_series > q3+1.5*iqr)).sum()
+            n_crit = (util_series >= 1.0).sum()
+            st.info(f"Outliers detectados: {n_out} PTDs  |  "
+                    f"PTDs a ≥ 100% capacidade: {n_crit}")
+
+        st.markdown("---")
+
+        # 4.3.4 Estatísticas descritivas — usa df_pt_raw como no Jupyter
+        st.markdown("#### 4.3.4 · Estatísticas Descritivas por Concelho")
+        st.caption("Calculadas sobre os PTDs individuais de cada concelho (igual ao Jupyter)")
+        concelhos_foco = ['Coimbra', 'Évora', 'Braga', 'Faro']
+        if (df_pt_raw is not None and 'Util_Decimal' in df_pt_raw.columns
+                and 'Concelho' in df_pt_raw.columns):
+            df_pt_foco = df_pt_raw[df_pt_raw['Concelho'].isin(concelhos_foco)]
+            rows = []
+            for c in concelhos_foco:
+                vals = df_pt_foco[df_pt_foco['Concelho'] == c]['Util_Decimal'].dropna()
+                if len(vals) > 0:
+                    rows.append({
+                        'Concelho':      c,
+                        'Média':         round(vals.mean(), 4),
+                        'Desvio Padrão': round(vals.std(), 4),
+                        'Q1':            round(vals.quantile(0.25), 4),
+                        'Mediana':       round(vals.median(), 4),
+                        'Q3':            round(vals.quantile(0.75), 4),
+                        'Assimetria':    round(float(skew(vals)), 4),
+                        'Curtose':       round(float(kurtosis(vals)), 4),
+                    })
+            if rows:
+                st.dataframe(pd.DataFrame(rows).set_index('Concelho'), use_container_width=True)
+        else:
+            st.info("Dados individuais de PTD não disponíveis.")
+
+        st.markdown("---")
+
+        # 4.4.4 Correlação de Pearson
+        st.markdown("#### 4.4.4 · Correlação de Pearson — Capacidade PTD vs Iluminação Pública")
+        st.caption("Relação linear entre capacidade de transformação instalada e carga de IP (todos os concelhos)")
+        df_corr_plot = df[['Cap_PTD', 'P_IP_Total']].dropna()
+        if len(df_corr_plot) > 2:
+            r_val, p_val_p = scipy_stats.pearsonr(df_corr_plot['Cap_PTD'], df_corr_plot['P_IP_Total'])
+            fig_p = px.scatter(df_corr_plot, x='Cap_PTD', y='P_IP_Total',
+                trendline='ols', opacity=0.6,
+                title='Relação entre Capacidade de Transformação e Iluminação Pública',
+                labels={'Cap_PTD': 'Capacidade Total de Transformação (kVA)',
+                        'P_IP_Total': 'Carga Total de IP (kW)'},
+                color_discrete_sequence=[COR_AZUL])
+            fig_p.update_traces(selector=dict(mode='lines'),
+                                line=dict(color=COR_VERMELHO, width=2))
+            fig_p.update_layout(**LAYOUT_BASE,
+                xaxis=dict(gridcolor='#e9ecef'), yaxis=dict(gridcolor='#e9ecef'))
+            st.plotly_chart(fig_p, use_container_width=True)
+
+            cr1, cr2, cr3 = st.columns(3)
+            cr1.metric("Coeficiente de Pearson (r)", f"{r_val:.4f}")
+            cr2.metric("p-value", f"{p_val_p:.2e}")
+            conclusao = ("Rejeitamos H₀ — relação linear estatisticamente significativa."
+                         if p_val_p < 0.05
+                         else "Não rejeitamos H₀ — relação não significativa.")
+            cr3.markdown(f"<br>{conclusao}", unsafe_allow_html=True)
 
     # ════════════════════════════════════════════════════════════════════════
-    # TAB 4 — Mapa
+    # TAB 4 — Mapa (PTDs + IP + locais potenciais)
     # ════════════════════════════════════════════════════════════════════════
     with tab4:
         st.subheader("Mapa das Zonas Analisadas")
         st.caption(
+            "Azul: carga de iluminação pública do município. "
             "Verde: município viável para integração de VE. "
             "Vermelho: município que requer expansão da rede. "
-            "O tamanho do círculo representa o número de PTDs do município. "
-            "Locais potenciais para carregamento assinalados com estrela."
+            "Estrela: Top 15 locais potenciais para carregamento. "
+            "Tamanho proporcional à potência IP / número de PTDs."
         )
 
-        colunas_mapa = [
-            c for c in ['lat', 'lon', 'Concelho', 'Viavel', 'D', 'N_PTDs',
-                        'P_Folga', 'Delta_P_LED', 'Cap_PTD_kW', 'P_IP_Total']
-            if c in df.columns
-        ]
-        df_map = df[colunas_mapa].dropna(subset=['lat', 'lon'])
+        cols_mapa = [c for c in ['lat', 'lon', 'Concelho', 'Viavel', 'D',
+                                  'N_PTDs', 'P_Folga', 'P_IP_Total', 'P_IP_Inef', 'Cap_PTD_kW']
+                     if c in df.columns]
+        df_map = df[cols_mapa].dropna(subset=['lat', 'lon'])
 
         if not df_map.empty:
             fig_map = go.Figure()
 
-            df_inviavel = df_map[~df_map['Viavel']]
-            if not df_inviavel.empty:
-                fig_map.add_trace(go.Scattermapbox(
-                    lat=df_inviavel['lat'],
-                    lon=df_inviavel['lon'],
-                    mode='markers',
-                    marker=dict(
-                        size=df_inviavel['N_PTDs'].clip(upper=50) / 2 + 5
-                              if 'N_PTDs' in df_inviavel.columns else 10,
-                        color=COR_VERMELHO,
-                        opacity=0.7
-                    ),
-                    text=df_inviavel['Concelho'] if 'Concelho' in df_inviavel.columns else None,
-                    hovertemplate=(
-                        "<b>%{text}</b><br>"
-                        "PTDs: %{customdata[0]}<br>"
-                        "Folga: %{customdata[1]:.0f} kW<br>"
-                        "Saldo D: %{customdata[2]:.0f} kW<br>"
-                        "<extra>Requer expansão</extra>"
-                    ),
-                    customdata=df_inviavel[['N_PTDs', 'P_Folga', 'D']].values
-                              if all(c in df_inviavel.columns for c in ['N_PTDs', 'P_Folga', 'D'])
-                              else None,
-                    name='Requer expansão da rede'
-                ))
+            # Camada 1 — Iluminação Pública
+            p_max = df_map['P_IP_Total'].quantile(0.95)
+            fig_map.add_trace(go.Scattermapbox(
+                lat=df_map['lat'], lon=df_map['lon'], mode='markers',
+                marker=dict(
+                    size=(df_map['P_IP_Total'].clip(upper=p_max) / p_max * 12 + 4).clip(4, 16),
+                    color=COR_AZUL, opacity=0.45),
+                text=df_map['Concelho'],
+                hovertemplate="<b>%{text}</b><br>IP Total: %{customdata[0]:.1f} kW<br>"
+                              "IP Ineficiente: %{customdata[1]:.1f} kW<extra>Iluminação Pública</extra>",
+                customdata=df_map[['P_IP_Total', 'P_IP_Inef']].values,
+                name='Iluminação Pública'))
 
-            df_viavel = df_map[df_map['Viavel']]
-            if not df_viavel.empty:
+            # Camada 2 — Inviáveis
+            df_inv = df_map[~df_map['Viavel']]
+            if not df_inv.empty:
                 fig_map.add_trace(go.Scattermapbox(
-                    lat=df_viavel['lat'],
-                    lon=df_viavel['lon'],
-                    mode='markers',
-                    marker=dict(
-                        size=df_viavel['N_PTDs'].clip(upper=50) / 2 + 5
-                              if 'N_PTDs' in df_viavel.columns else 10,
-                        color=COR_VERDE,
-                        opacity=0.8
-                    ),
-                    text=df_viavel['Concelho'] if 'Concelho' in df_viavel.columns else None,
-                    hovertemplate=(
-                        "<b>%{text}</b><br>"
-                        "PTDs: %{customdata[0]}<br>"
-                        "Folga: %{customdata[1]:.0f} kW<br>"
-                        "Saldo D: %{customdata[2]:.0f} kW<br>"
-                        "<extra>Viável para VE</extra>"
-                    ),
-                    customdata=df_viavel[['N_PTDs', 'P_Folga', 'D']].values
-                              if all(c in df_viavel.columns for c in ['N_PTDs', 'P_Folga', 'D'])
-                              else None,
-                    name='Suporta integração VE'
-                ))
+                    lat=df_inv['lat'], lon=df_inv['lon'], mode='markers',
+                    marker=dict(size=df_inv['N_PTDs'].clip(upper=50)/2+5,
+                                color=COR_VERMELHO, opacity=0.7),
+                    text=df_inv['Concelho'],
+                    hovertemplate="<b>%{text}</b><br>PTDs: %{customdata[0]}<br>"
+                                  "Folga: %{customdata[1]:.0f} kW<br>Saldo D: %{customdata[2]:.0f} kW"
+                                  "<extra>Requer expansão</extra>",
+                    customdata=df_inv[['N_PTDs', 'P_Folga', 'D']].values,
+                    name='Requer expansão da rede'))
 
-            df_pot = df_map[df_map['Viavel']].nlargest(15, 'D') if 'D' in df_map.columns else pd.DataFrame()
+            # Camada 3 — Viáveis
+            df_via = df_map[df_map['Viavel']]
+            if not df_via.empty:
+                fig_map.add_trace(go.Scattermapbox(
+                    lat=df_via['lat'], lon=df_via['lon'], mode='markers',
+                    marker=dict(size=df_via['N_PTDs'].clip(upper=50)/2+5,
+                                color=COR_VERDE, opacity=0.8),
+                    text=df_via['Concelho'],
+                    hovertemplate="<b>%{text}</b><br>PTDs: %{customdata[0]}<br>"
+                                  "Folga: %{customdata[1]:.0f} kW<br>Saldo D: %{customdata[2]:.0f} kW"
+                                  "<extra>Viável para VE</extra>",
+                    customdata=df_via[['N_PTDs', 'P_Folga', 'D']].values,
+                    name='Suporta integração VE'))
+
+            # Camada 4 — Top 15 potenciais
+            df_pot = df_map[df_map['Viavel']].nlargest(15, 'D')
             if not df_pot.empty:
                 fig_map.add_trace(go.Scattermapbox(
-                    lat=df_pot['lat'],
-                    lon=df_pot['lon'],
-                    mode='markers',
+                    lat=df_pot['lat'], lon=df_pot['lon'], mode='markers',
                     marker=dict(size=16, color=COR_AMARELO, symbol='star', opacity=0.95),
-                    text=df_pot['Concelho'] if 'Concelho' in df_pot.columns else None,
-                    hovertemplate=(
-                        "<b>%{text}</b><br>"
-                        "Saldo D: %{customdata[0]:.0f} kW<br>"
-                        "<extra>Local potencial para carregamento</extra>"
-                    ),
+                    text=df_pot['Concelho'],
+                    hovertemplate="<b>%{text}</b><br>Saldo D: %{customdata[0]:.0f} kW"
+                                  "<extra>Local potencial para carregamento</extra>",
                     customdata=df_pot[['D']].values,
-                    name='Local potencial para carregamento (Top 15)'
-                ))
+                    name='Local potencial (Top 15)'))
 
             fig_map.update_layout(
                 mapbox=dict(style='carto-positron', zoom=5.5, center=dict(lat=39.5, lon=-8.0)),
                 margin=dict(r=0, t=0, l=0, b=0),
-                legend=dict(
-                    bgcolor='rgba(255,255,255,0.9)',
-                    bordercolor='#e2e6ea',
-                    borderwidth=1,
-                    x=0.01, y=0.99,
-                    xanchor='left', yanchor='top',
-                    font=dict(size=11)
-                ),
-                height=580
-            )
+                legend=dict(bgcolor='rgba(255,255,255,0.9)', bordercolor='#e2e6ea',
+                            borderwidth=1, x=0.01, y=0.99, font=dict(size=11)),
+                height=580)
             st.plotly_chart(fig_map, use_container_width=True)
 
             if not df_pot.empty:
-                st.markdown("**Locais com maior potencial para instalação de carregadores VE (Top 15)**")
-                cols_tabela = [c for c in ['Concelho', 'N_PTDs', 'P_Folga', 'Delta_P_LED', 'P_VE', 'D']
-                               if c in df_pot.columns]
-                st.dataframe(
-                    df_pot[cols_tabela].sort_values('D', ascending=False).round(1),
-                    use_container_width=True,
-                    hide_index=True
-                )
+                st.markdown("**Top 15 municípios com maior potencial para carregadores VE**")
+                cols_tab = [c for c in ['Concelho', 'N_PTDs', 'P_Folga', 'Delta_P_LED', 'P_VE', 'D']
+                            if c in df_pot.columns]
+                st.dataframe(df_pot[cols_tab].sort_values('D', ascending=False).round(1),
+                             use_container_width=True, hide_index=True)
         else:
-            st.warning(
-                "Coordenadas geográficas não disponíveis. "
-                "Verifique se a coluna 'Coordenadas Geográficas' existe no ficheiro PTD_data.xlsx."
-            )
+            st.warning("Coordenadas geográficas não disponíveis no ficheiro PTD_data.xlsx.")
 
     # ════════════════════════════════════════════════════════════════════════
-    # TAB 5 — Dados Tabelares
+    # TAB 5 — Dados tabelares
     # ════════════════════════════════════════════════════════════════════════
     with tab5:
         st.subheader("Dados Tabelares Completos")
+        cols_show = [c for c in [
+            'CodDistritoConcelho', 'CodDistrito', 'Nome_Distrito', 'Concelho',
+            'P_IP_Total', 'P_IP_Inef', 'Rate_Ineficiencia',
+            'N_PTDs', 'Cap_PTD', 'Util_Media',
+            'Delta_P_LED', 'P_Folga', 'P_VE', 'D', 'Viavel'
+        ] if c in df.columns]
 
-        cols_mostrar = [
-            c for c in [
-                'Concelho', 'Distrito',
-                'N_Lampadas_Total', 'N_Lampadas_Inef', 'Taxa_Inef',
-                'P_IP_Total', 'P_IP_Inef', 'Delta_P_LED',
-                'N_PTDs', 'Cap_PTD', 'Cap_PTD_kW', 'Util_Media',
-                'P_Ocupada', 'P_Folga', 'P_VE',
-                'D', 'Viavel'
-            ] if c in df.columns
-        ]
-
-        filtro = st.radio(
-            "Filtrar por viabilidade",
-            options=["Todos", "Viáveis", "Requerem expansão"],
-            horizontal=True
-        )
-        df_tabela = df.copy()
+        filtro = st.radio("Filtrar por viabilidade",
+                          ["Todos", "Viáveis", "Requerem expansão"], horizontal=True)
+        df_tab = df.copy()
         if filtro == "Viáveis":
-            df_tabela = df_tabela[df_tabela['Viavel'] == True]
+            df_tab = df_tab[df_tab['Viavel'] == True]
         elif filtro == "Requerem expansão":
-            df_tabela = df_tabela[df_tabela['Viavel'] == False]
+            df_tab = df_tab[df_tab['Viavel'] == False]
 
-        st.dataframe(
-            df_tabela[cols_mostrar].round(2),
-            use_container_width=True,
-            hide_index=True
-        )
-        st.caption(f"{len(df_tabela)} registos mostrados de {len(df)} no total.")
+        st.dataframe(df_tab[cols_show].round(4), use_container_width=True, hide_index=True)
+        st.caption(f"{len(df_tab)} registos mostrados de {len(df)} no total.")
 
 else:
-    st.error(
-        "Não foi possível carregar os dados. "
-        "Certifique-se de que os ficheiros IP_data.xlsx e PTD_data.xlsx "
-        "estão na mesma pasta que este script."
-    )
+    st.error("Não foi possível carregar os dados. "
+             "Verifique se IP_data.xlsx e PTD_data.xlsx estão na mesma pasta que este script.")
