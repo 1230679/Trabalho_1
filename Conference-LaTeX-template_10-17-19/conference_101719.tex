@@ -7,8 +7,6 @@
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
-\usepackage{graphicx}
-\usepackage{subcaption} 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
@@ -125,35 +123,10 @@ O saldo $D > 0$ determina a viabilidade técnica do concelho para suportar novas
  
 A análise do mix tecnológico da IP revelou que uma proporção relevante da potência instalada ainda provém de tecnologias convencionais (Sódio e Mercúrio). O gráfico de barras da potência ineficiente por município evidencia que esta se concentra num grupo restrito de concelhos, essencialmente capitais de distrito e municípios de maior dimensão, definindo prioridades geográficas claras para as políticas de modernização.
 
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.45\textwidth]{mix_tecnologico.png}
-    \caption{Mix Tecnológico da Iluminação Pública em Portugal Continental, segmentado por Potência Instalada (kW).}
-    \label{fig:mix_tec}
-\end{figure}
-
 \subsection{Distribuição da Ocupação por Distrito}
  
 Os diagramas de extremos e quartis dos PTDs nos distritos de Aveiro, Lisboa, Porto e Setúbal evidenciaram padrões distintos. Lisboa apresenta a maior variabilidade de carga, reflexo da heterogeneidade urbana e industrial, com vários municípios próximos dos limites de capacidade. Os distritos do Norte apresentam distribuições mais compactas e homogéneas.
  
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.5\textwidth]{boxplot_distritos.png}
-    \caption{Distribuição do Nível de Utilização dos Postos de Transformação por Distrito. A linha vermelha indica a mediana e os círculos representam os \textit{outliers}.}
-    \label{fig:boxplot_distritos}
-\end{figure}
-
-\subsection{Top 10 Municípios com Maior Potência Instalada Ineficiente}
-
-A análise do Top 10 municípios com maior potência instalada em tecnologias ineficientes (Fig. 3) revela uma concentração significativa de carga que poderia ser otimizada. Concelhos como Cascais e Sintra apresentam valores que ultrapassam os 3500kW de potência em lâmpadas de mercúrio e sódio. Esta acumulação de potência ineficiente representa uma oportunidade crítica: a transição total para LED nestes pontos estratégicos permitiria libertar capacidade imediata nos Postos de Transformação (PTD) locais, facilitando a integração de carregadores de veículos elétricos sem necessidade de reforço estrutural da rede primária.
-
-\begin{figure}[htbp]
-    \centering
-    \includegraphics[width=0.5\textwidth]{top10_ineficiente.png}
-    \caption{Top 10 Municípios com maior Potência Instalada Ineficiente (Mercúrio, Sódio e Outros), representando o potencial imediato de libertação de carga.}
-    \label{fig:top10_inef}
-\end{figure}
-
 \subsection{Valores Omissos e Outliers}
  
 A prevalência de dados omissos foi quantificada em 17\,402 registos (24,16\% do total de PTDs). O boxplot do nível de utilização individual mostra que 50\% dos PTDs operam entre 38\% e 58\% de capacidade. Contudo, identificaram-se outliers críticos com valores $\geq 100\%$, revelando transformadores em sobrecarga. Estes constituem estrangulamentos da rede onde a instalação de carregadores VE é tecnicamente inviável sem intervenção prévia de reforço.
