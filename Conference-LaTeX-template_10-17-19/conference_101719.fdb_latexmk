@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1774718174.9637 "/Users/samaramiranda/Documents/ANADI/Trabalho_1/Conference-LaTeX-template_10-17-19/conference_101719.tex" "conference_101719.pdf" "conference_101719" 1774718176.38387 0
-  "/Users/samaramiranda/Documents/ANADI/Trabalho_1/Conference-LaTeX-template_10-17-19/conference_101719.tex" 1774718174.60613 23433 2fbbdb005d024f9410cedb308258a378 ""
+["pdflatex"] 1774720241.1349 "/Users/samaramiranda/Documents/ANADI/Trabalho_1/Conference-LaTeX-template_10-17-19/conference_101719.tex" "conference_101719.pdf" "conference_101719" 1774720243.34168 0
+  "/Users/samaramiranda/Documents/ANADI/Trabalho_1/Conference-LaTeX-template_10-17-19/conference_101719.tex" 1774720240.21934 25104 1789d072c8aab090241c90182ca81300 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/local/texlive/2026/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/local/texlive/2026/texmf-dist/fonts/tfm/adobe/courier/pcrr7t.tfm" 1136768653 960 379cc0019370a9e0208a0a3f949f847a ""
@@ -69,6 +69,9 @@
   "/usr/local/texlive/2026/texmf-dist/tex/latex/amsmath/amstext.sty" 1748806692 2444 9983e1d0683f102e3b190c64a49313aa ""
   "/usr/local/texlive/2026/texmf-dist/tex/latex/base/ifthen.sty" 1748806692 5525 1593ca62a2554dd7423fc8a4e5a82125 ""
   "/usr/local/texlive/2026/texmf-dist/tex/latex/base/textcomp.sty" 1738182759 2846 e26604d3d895e65d874c07f30c291f3f ""
+  "/usr/local/texlive/2026/texmf-dist/tex/latex/caption/caption.sty" 1696191071 56128 c2ccf1a29d78c33bc553880402e4fb9a ""
+  "/usr/local/texlive/2026/texmf-dist/tex/latex/caption/caption3.sty" 1696191071 72619 ee90b6612147680fd73c3b1406a74245 ""
+  "/usr/local/texlive/2026/texmf-dist/tex/latex/caption/subcaption.sty" 1690576852 12494 0c0cdb824278a4d51cefeb2e79901315 ""
   "/usr/local/texlive/2026/texmf-dist/tex/latex/cite/cite.sty" 1425427964 26218 19edeff8cdc2bcb704e8051dc55eb5a7 ""
   "/usr/local/texlive/2026/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty" 1579991033 13886 d1306dcf79a944f6988e688c1785f9ce ""
   "/usr/local/texlive/2026/texmf-dist/tex/latex/graphics-cfg/color.cfg" 1459978653 1213 620bba36b25224fa9b7e1ccb4ecb76fd ""
@@ -90,8 +93,11 @@
   "/usr/local/texlive/2026/texmf-var/web2c/pdftex/pdflatex.fmt" 1773927683 3636770 54ba53e30f16ac7c6667f2af95fbfedd ""
   "/usr/local/texlive/2026/texmf.cnf" 1772409725 577 648cd9f92f9c0eac486f4c71c85cfbbe ""
   "IEEEtran.cls" 1440636524 288304 b67b6fc6c2abb39f9b461923f5199343 ""
-  "conference_101719.aux" 1774718176.19639 5491 0edc07f0d6d14a6d6c921ab6b74a61b8 "pdflatex"
-  "conference_101719.tex" 1774718174.60613 23433 2fbbdb005d024f9410cedb308258a378 ""
+  "boxplot_distritos.png" 1774719992.71194 125387 4e1f797606c885a466ba1d03610cddb0 ""
+  "conference_101719.aux" 1774720243.14299 6601 fc47be0682000a043904aacbf36825fa "pdflatex"
+  "conference_101719.tex" 1774720240.21934 25104 1789d072c8aab090241c90182ca81300 ""
+  "mix_tecnologico.png" 1774719571.19358 216083 1adecd9bcaf96607aea6890aef9cfbb6 ""
+  "top10_ineficiente.png" 1774720003.17566 171291 6f3aa449bb70ba0219b4f80f608dde11 ""
   (generated)
   "conference_101719.aux"
   "conference_101719.log"
