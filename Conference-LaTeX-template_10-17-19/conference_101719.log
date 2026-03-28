@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.19)  27 MAR 2026 17:13
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.19)  28 MAR 2026 17:16
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -321,35 +321,40 @@ Underfull \hbox (badness 1496) in paragraph at lines 109--110
  []
 
 [2]
-Underfull \hbox (badness 10000) in paragraph at lines 174--175
+Underfull \hbox (badness 1769) in paragraph at lines 160--161
+[]\OT1/ptm/m/n/10 Para garan-tir a val-i-dade das in-fer[]encias param[]etricas,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 171--172
 []\OT1/ptm/m/n/10 Constitu[]^^Pram-se tr[]es amostras de 25 con-cel-hos:
  []
 
 
-Underfull \hbox (badness 1953) in paragraph at lines 174--175
+Underfull \hbox (badness 1953) in paragraph at lines 171--172
 \OT1/ptm/m/n/10 diferen[]as es-ta-tis-ti-ca-mente sig-ni-fica-ti-vas en-tre as regi[]oes
  []
 
 
-Underfull \hbox (badness 1946) in paragraph at lines 174--175
+Underfull \hbox (badness 1946) in paragraph at lines 171--172
 \OT1/ptm/m/n/10 ($\OML/cmm/m/it/10 p < \OT1/cmr/m/n/10 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 05$\OT1/ptm/m/n/10 ). A an[]alise post-hoc de Tukey iden-ti-fi-cou
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 174--175
+Underfull \hbox (badness 10000) in paragraph at lines 171--172
 \OT1/ptm/m/n/10 que o In-te-rior/Alentejo ap-re-senta ocupa[][]oes m[]edias
  []
 
 
-Underfull \hbox (badness 1565) in paragraph at lines 174--175
+Underfull \hbox (badness 1565) in paragraph at lines 171--172
 \OT1/ptm/m/n/10 sig-ni-fica-ti-va-mente in-fe-ri-ores []as regi[]oes litorais. En-tre as
  []
 
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 214.
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 211.
 (/usr/local/texlive/2026/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
-Underfull \hbox (badness 2591) in paragraph at lines 224--225
+Underfull \hbox (badness 2591) in paragraph at lines 221--222
 \OT1/ptm/m/n/10 marginal-mente abaixo do lim-iar de 1.5, in-di-cando
  []
 
@@ -380,7 +385,7 @@ Here is how much of TeX's memory you used:
  1141 hyphenation exceptions out of 8191
  57i,17n,65p,1381b,348s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on conference_101719.pdf (4 pages, 210320 bytes).
+Output written on conference_101719.pdf (4 pages, 211370 bytes).
 PDF statistics:
  98 PDF objects out of 1000 (max. 8388607)
  59 compressed objects within 1 object stream

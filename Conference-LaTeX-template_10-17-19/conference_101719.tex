@@ -154,17 +154,14 @@ Faro    & 0.5549 & 0.2126 & 0.39 & 0.59 & 0.59 & 0.3009  & $-$0.4757 \\
  
 Faro é o concelho com a rede mais carregada em média (55,49\%), enquanto Évora apresenta a maior folga (45,46\%). A assimetria positiva em todos os concelhos indica que existem mais PTDs em cargas baixas/médias do que em sobrecarga extrema. Os valores de curtose negativos (distribuições platicúrticas) revelam que as cargas estão amplamente distribuídas pelos vários níveis de utilização.
 
-\section{Inferência Estatística}
- 
-\subsection{Teste de Hipótese: Ocupação Média Inferior a 60\%}
- 
-Selecionou-se aleatoriamente uma amostra de 50 concelhos (\texttt{random\_state=42}). O teste de Shapiro-Wilk confirmou a normalidade ($p = 0.0717 > 0.05$), justificando o uso do t-test paramétrico. O teste unilateral formulado foi:
-\[
-H_0{:}\; \mu \geq 0.60 \quad \text{vs} \quad H_1{:}\; \mu < 0.60
-\]
- 
-O t-test para uma amostra resultou em $p \approx 0 \ll 0.05$. Rejeita-se $H_0$: há evidências estatísticas significativas de que o nível médio de ocupação é inferior a 60\%, confirmando a existência de folga global de capacidade nos PTDs.
- 
+\section{Análise e Inferência Estatística}
+\subsection{Teste de Normalidade e Hipótese de Folga}
+
+Para garantir a validade das inferências paramétricas, aplicou-se o teste de Shapiro-Wilk à variável de ocupação média municipal ($Util\_Media$) numa amostra aleatória de 50 concelhos. O teste resultou num valor de estatística $W = 0.962$ com um \textbf{$p$-value = 0.0717}. Sendo $p > 0.05$, não existe evidência estatística para rejeitar a hipótese nula ($H_0$) de normalidade da distribuição.
+
+Com a normalidade verificada, procedeu-se a um teste de hipóteses (T-Test) para uma amostra para avaliar a existência de capacidade disponível na rede nacional. Definiu-se como hipótese nula que a ocupação média é igual ou superior a 60\% ($H_0: \mu \ge 0.60$) contra a alternativa de que a rede opera, em média, com folga significativa ($H_1: \mu < 0.60$). O teste estatístico produziu um \textbf{$p$-value $\approx 0$} (inferior a $0.0001$). 
+
+\textit{Conclusão:} Dado que o $p$-value é amplamente inferior ao nível de significância adotado ($\alpha = 0.05$), rejeita-se $H_0$. Este resultado permite afirmar, com um nível de confiança de 95\%, que a infraestrutura nacional de distribuição possui, em média, uma ocupação significativamente inferior ao limite de alerta de 60\%, comprovando a viabilidade teórica para a integração de novas cargas de mobilidade elétrica.
 \subsection{Teste de Duas Amostras: Modernizados vs. Ineficientes}
  
 Com base na mediana do rácio de LED, definiram-se dois grupos: ``Modernizados'' e ``Ineficientes''. Selecionaram-se 30 concelhos de cada grupo. O t-test de Welch para amostras independentes revelou que o estado médio de ocupação da rede não difere significativamente entre os dois grupos ($p > 0.05$), sugerindo que o nível de modernização da IP não é determinante para a carga global dos PTDs.
@@ -220,9 +217,9 @@ AIC                   & $-$726.2        \\
 \subsection{Verificação dos Pressupostos dos Resíduos}
  
 \begin{itemize}
-    \item \textbf{Normalidade (Shapiro-Wilk)}: $p = 0.0301 < 0.05$ --- pressuposto violado.
-    \item \textbf{Independência (Durbin-Watson)}: estatística $= 1.433$, marginalmente abaixo do limiar de 1.5, indicando autocorrelação positiva ligeira --- pressuposto parcialmente violado.
-    \item \textbf{Homocedasticidade (Breusch-Pagan)}: $p = 0.1710 > 0.05$ --- variância constante confirmada.
+    \item \textbf{Normalidade (Shapiro-Wilk)}: $p = 0.0301 < 0.05$ - pressuposto violado.
+    \item \textbf{Independência (Durbin-Watson)}: estatística $= 1.433$, marginalmente abaixo do limiar de 1.5, indicando autocorrelação positiva ligeira - pressuposto parcialmente violado.
+    \item \textbf{Homocedasticidade (Breusch-Pagan)}: $p = 0.1710 > 0.05$ - variância constante confirmada.
 \end{itemize}
  
 As violações da normalidade e independência são coerentes com o baixo $R^2$, refletindo a omissão de variáveis explicativas fundamentais (consumo doméstico e industrial).
