@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.19)  28 MAR 2026 17:16
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.3.19)  29 MAR 2026 17:01
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -230,40 +230,70 @@ Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1369.
 Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
 Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
 Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
+) (/usr/local/texlive/2026/texmf-dist/tex/latex/caption/subcaption.sty
+Package: subcaption 2023/07/28 v1.6b Sub-captions (AR)
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/caption/caption.sty
+Package: caption 2023/08/05 v3.6o Customizing captions (AR)
+ (/usr/local/texlive/2026/texmf-dist/tex/latex/caption/caption3.sty
+Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
+\caption@tempdima=\dimen183
+\captionmargin=\dimen184
+\caption@leftmargin=\dimen185
+\caption@rightmargin=\dimen186
+\caption@width=\dimen187
+\caption@indent=\dimen188
+\caption@parindent=\dimen189
+\caption@hangindent=\dimen190
+Package caption Info: Unknown document class (or package),
+(caption)             standard defaults will be used.
+Package caption Info: \@makecaption = \long macro:#1#2->\ifx \@captype \@IEEEtablestring \footnotesize \bgroup \par \centering \@IEEEtabletopskipstrut {\normalfont \footnotesize #1}\\{\normalfont \footnotesize \scshape #2}\par \addvspace {0.5\baselineskip }\egroup \@IEEEtablecaptionsepspace \else \@IEEEfigurecaptionsepspace \setbox \@tempboxa \hbox {\normalfont \footnotesize {#1.}\nobreakspace \nobreakspace #2}\ifdim \wd \@tempboxa >\hsize \setbox \@tempboxa \hbox {\normalfont \footnotesize {#1.}\nobreakspace \nobreakspace }\parbox [t]{\hsize }{\normalfont \footnotesize \noindent \unhbox \@tempboxa #2}\else \ifCLASSOPTIONconference \hbox to\hsize {\normalfont \footnotesize \hfil \box \@tempboxa \hfil }\else \hbox to\hsize {\normalfont \footnotesize \box \@tempboxa \hfil }\fi \fi \fi  on input line 1175.
+)
+
+Package caption Warning: Unknown document class (or package),
+(caption)                standard defaults will be used.
+See the caption package documentation for explanation.
+
+\c@caption@flags=\count306
+\c@continuedfloat=\count307
+)
+Package caption Info: New subtype `subfigure' on input line 238.
+\c@subfigure=\count308
+Package caption Info: New subtype `subtable' on input line 238.
+\c@subtable=\count309
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
-\l__color_backend_stack_int=\count306
+\l__color_backend_stack_int=\count310
 ) (./conference_101719.aux)
 \openout1 = `conference_101719.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 12.
-LaTeX Font Info:    ... okay on input line 12.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 13.
+LaTeX Font Info:    ... okay on input line 13.
 
 -- Lines per column: 56 (exact).
 (/usr/local/texlive/2026/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count307
-\scratchdimen=\dimen183
+\scratchcounter=\count311
+\scratchdimen=\dimen191
 \scratchbox=\box57
-\nofMPsegments=\count308
-\nofMParguments=\count309
+\nofMPsegments=\count312
+\nofMParguments=\count313
 \everyMPshowfont=\toks24
-\MPscratchCnt=\count310
-\MPscratchDim=\dimen184
-\MPnumerator=\count311
-\makeMPintoPDFobject=\count312
+\MPscratchCnt=\count314
+\MPscratchDim=\dimen192
+\MPnumerator=\count315
+\makeMPintoPDFobject=\count316
 \everyMPtoPDFconversion=\toks25
 ) (/usr/local/texlive/2026/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
 Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
@@ -271,6 +301,8 @@ Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 48
  (/usr/local/texlive/2026/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: End \AtBeginDocument code.
 LaTeX Font Info:    Calculating math sizes for size <11> on input line 38.
 LaTeX Font Info:    Trying to load font information for U+msa on input line 38.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsa.fd
@@ -280,26 +312,26 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 38.
  (/usr/local/texlive/2026/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Underfull \hbox (badness 7631) in paragraph at lines 45--47
+Underfull \hbox (badness 7631) in paragraph at lines 44--46
 []\OT1/ptm/b/it/9 Index Terms\OT1/ptm/b/n/9 ---An[]alise de Da-dos, Ilumina[][]ao P[]ublica,
  []
 
 
-Underfull \hbox (badness 4739) in paragraph at lines 55--56
+Underfull \hbox (badness 4739) in paragraph at lines 54--55
 \OT1/ptm/m/n/10 parcela sig-ni-fica-tiva do con-sumo en-erg[]etico mu-nic-i-pal.
  []
 
 
-Underfull \hbox (badness 4341) in paragraph at lines 62--63
+Underfull \hbox (badness 4341) in paragraph at lines 61--62
 []\OT1/ptm/b/n/10 Explora[][]ao e Trata-mento: \OT1/ptm/m/n/10 Efe-t-uar a limpeza e
  []
 
 
-Underfull \hbox (badness 2644) in paragraph at lines 66--67
+Underfull \hbox (badness 2644) in paragraph at lines 65--66
 []\OT1/ptm/b/n/10 Modela[][]ao Pred-i-tiva: \OT1/ptm/m/n/10 De-sen-volver um mod-elo de
  []
 
-LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 71.
+LaTeX Font Info:    Trying to load font information for OT1+pcr on input line 70.
 (/usr/local/texlive/2026/texmf-dist/tex/latex/psnfss/ot1pcr.fd
 File: ot1pcr.fd 2001/06/04 font definitions for OT1/pcr.
 ) [1{/usr/local/texlive/2026/texmf-var/fonts/map/pdftex/updmap/pdftex.map}{/usr/local/texlive/2026/texmf-dist/fonts/enc/dvips/base/8r.enc}
@@ -320,45 +352,56 @@ Underfull \hbox (badness 1496) in paragraph at lines 109--110
 \OT1/ptm/m/n/10 re-sul-tou em 278 con-cel-hos. Foram cri-adas as seguintes
  []
 
-[2]
-Underfull \hbox (badness 1769) in paragraph at lines 160--161
+<mix_tecnologico.png, id=12, 716.6775pt x 644.4075pt>
+File: mix_tecnologico.png Graphic file (type png)
+<use mix_tecnologico.png>
+Package pdftex.def Info: mix_tecnologico.png  used on input line 128.
+(pdftex.def)             Requested size: 232.19843pt x 208.78099pt.
+<boxplot_distritos.png, id=14, 867.24pt x 505.89pt>
+File: boxplot_distritos.png Graphic file (type png)
+<use boxplot_distritos.png>
+Package pdftex.def Info: boxplot_distritos.png  used on input line 139.
+(pdftex.def)             Requested size: 258.0pt x 150.5022pt.
+
+Overfull \hbox (6.0pt too wide) in paragraph at lines 139--140
+ [][] 
+ []
+
+[2 <./mix_tecnologico.png>]
+<top10_ineficiente.png, id=25, 1023.825pt x 492.84125pt>
+File: top10_ineficiente.png Graphic file (type png)
+<use top10_ineficiente.png>
+Package pdftex.def Info: top10_ineficiente.png  used on input line 150.
+(pdftex.def)             Requested size: 258.0pt x 124.19514pt.
+
+Overfull \hbox (6.0pt too wide) in paragraph at lines 150--151
+ [][] 
+ []
+
+
+Underfull \hbox (badness 1769) in paragraph at lines 185--186
 []\OT1/ptm/m/n/10 Para garan-tir a val-i-dade das in-fer[]encias param[]etricas,
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 171--172
+[3 <./boxplot_distritos.png> <./top10_ineficiente.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 207--208
 []\OT1/ptm/m/n/10 Constitu[]^^Pram-se tr[]es amostras de 25 con-cel-hos:
  []
 
-
-Underfull \hbox (badness 1953) in paragraph at lines 171--172
-\OT1/ptm/m/n/10 diferen[]as es-ta-tis-ti-ca-mente sig-ni-fica-ti-vas en-tre as regi[]oes
- []
-
-
-Underfull \hbox (badness 1946) in paragraph at lines 171--172
-\OT1/ptm/m/n/10 ($\OML/cmm/m/it/10 p < \OT1/cmr/m/n/10 0\OML/cmm/m/it/10 :\OT1/cmr/m/n/10 05$\OT1/ptm/m/n/10 ). A an[]alise post-hoc de Tukey iden-ti-fi-cou
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 171--172
-\OT1/ptm/m/n/10 que o In-te-rior/Alentejo ap-re-senta ocupa[][]oes m[]edias
- []
-
-
-Underfull \hbox (badness 1565) in paragraph at lines 171--172
-\OT1/ptm/m/n/10 sig-ni-fica-ti-va-mente in-fe-ri-ores []as regi[]oes litorais. En-tre as
- []
-
-LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 211.
+LaTeX Font Info:    Trying to load font information for TS1+ptm on input line 251.
 (/usr/local/texlive/2026/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
-Underfull \hbox (badness 2591) in paragraph at lines 221--222
+Underfull \hbox (badness 2591) in paragraph at lines 261--262
 \OT1/ptm/m/n/10 marginal-mente abaixo do lim-iar de 1.5, in-di-cando
  []
 
-[3]
+
+Overfull \hbox (2.82219pt too wide) in paragraph at lines 296--311
+ [][] 
+ []
+
+[4]
 
 ** Conference Paper **
 Before submitting the final camera ready copy, remember to:
@@ -370,25 +413,25 @@ Before submitting the final camera ready copy, remember to:
  uses only Type 1 fonts and that every step in the generation
  process uses the appropriate paper size.
 
-[4] (./conference_101719.aux)
+[5] (./conference_101719.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 4306 strings out of 467525
- 67217 string characters out of 5418982
- 504232 words of memory out of 5000000
- 33169 multiletter control sequences out of 15000+600000
- 673720 words of font info for 133 fonts, out of 8000000 for 9000
+ 5790 strings out of 467525
+ 95902 string characters out of 5418982
+ 525841 words of memory out of 5000000
+ 34645 multiletter control sequences out of 15000+600000
+ 671996 words of font info for 131 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 57i,17n,65p,1381b,348s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 67i,17n,77p,1381b,348s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/times/utmbi8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></usr/local/texlive/2026/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on conference_101719.pdf (4 pages, 211370 bytes).
+Output written on conference_101719.pdf (5 pages, 605805 bytes).
 PDF statistics:
- 98 PDF objects out of 1000 (max. 8388607)
- 59 compressed objects within 1 object stream
+ 108 PDF objects out of 1000 (max. 8388607)
+ 62 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 16 words of extra memory for PDF output out of 10000 (max. 10000000)
 

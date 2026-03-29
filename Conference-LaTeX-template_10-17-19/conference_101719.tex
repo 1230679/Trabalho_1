@@ -1,18 +1,18 @@
 \documentclass[conference]{IEEEtran}
 \IEEEoverridecommandlockouts
-% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{algorithmic}
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{subcaption} 
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
 
 \title{Análise de Eficiência e Ocupação da Rede Elétrica de Distribuição: Impacto da Iluminação Pública LED e Integração de Cargas de Mobilidade Elétrica\\
-
 \thanks{Identify applicable funding agency here. If none, delete this.}
 }
 
@@ -40,22 +40,21 @@ Porto, Portugal \\
 \begin{abstract}
 Este artigo apresenta uma análise estatística da ocupação dos Postos de Transformação de Distribuição (PTD) em Portugal e da sua relação com a eficiência energética da Iluminação Pública (IP). A crescente eletrificação dos transportes coloca novos desafios à infraestrutura elétrica existente, exigindo uma gestão eficiente da capacidade disponível na rede. Neste trabalho realiza-se uma Análise Exploratória de Dados (EDA), análise inferencial e modelação preditiva, utilizando dados públicos da e-REDES relativos à iluminação pública e aos postos de transformação. Com base nestes dados, estimam-se variáveis que quantificam a potência libertada pela substituição de luminárias convencionais por tecnologia LED e avalia-se a viabilidade técnica da rede para integrar infraestruturas de carregamento de veículos elétricos (VE). Um modelo de regressão linear múltipla foi desenvolvido para explicar o nível médio de ocupação da rede em função de variáveis de infraestrutura elétrica e de eficiência tecnológica. Os resultados identificam padrões regionais de utilização da rede e evidenciam as limitações e potencialidades do processo de modernização tecnológica na integração de mobilidade elétrica.
 \end{abstract}
- 
 
 \begin{IEEEkeywords}
 Análise de Dados, Iluminação Pública, Regressão Linear, Eficiência Energética, Mobilidade Elétrica, Redes de Distribuição, VIF, ANOVA.
 \end{IEEEkeywords}
 
 \section{Introdução}
- 
+
 A transição energética e a descarbonização das cidades são atualmente objetivos centrais das políticas energéticas europeias. A eletrificação de setores como os transportes e a crescente integração de tecnologias sustentáveis colocam novos desafios à gestão da infraestrutura elétrica existente.
- 
+
 Os Postos de Transformação de Distribuição (PTD) constituem elementos críticos da rede, responsáveis por converter e distribuir energia elétrica em baixa tensão. O aumento da procura energética, impulsionado pela expansão da mobilidade elétrica, pode conduzir a situações de elevada ocupação destes equipamentos.
- 
-Paralelamente, a Iluminação Pública (IP) representa uma parcela significativa do consumo energético municipal. A transição progressiva das tecnologias convencionais de iluminação --- como lâmpadas de mercúrio ou sódio --- para tecnologia LED tem demonstrado um potencial disruptivo na libertação de carga na rede elétrica de baixa tensão~\cite{b1}.
- 
-Surge assim uma oportunidade de sinergia: a \emph{potência libertada} pela eficiência na IP pode ser o catalisador para a infraestrutura de VE, evitando investimentos massivos em novos PTDs~\cite{b4}. Este trabalho, desenvolvido no âmbito da unidade curricular de Análise de Dados em Informática (ANADI), tem como objetivo analisar a relação entre a eficiência da iluminação pública e o nível de ocupação da rede elétrica de distribuição, construindo um modelo preditivo e avaliando a viabilidade técnica de integração de carregadores de veículos elétricos de 22~kW.
- 
+
+Paralelamente, a Iluminação Pública (IP) representa uma parcela significativa do consumo energético municipal. A transição progressiva das tecnologias convencionais de iluminação --- como lâmpadas de mercúrio ou sódio --- para tecnologia LED tem demonstrado um potencial disruptivo na libertação de carga na rede elétrica de baixa tensão~\cite{b4}.
+
+Surge assim uma oportunidade de sinergia: a \emph{potência libertada} pela eficiência na IP pode ser o catalisador para a infraestrutura de VE, evitando investimentos massivos em novos PTDs~\cite{b4}. Este trabalho, desenvolvido no âmbito da unidade curricular de Análise de Dados em Informática (ANADI), tem como objetivo analisar a relação entre a eficiência da iluminação pública e o nível de ocupação da rede elétrica de distribuição, construindo um modelo preditivo e avaliando a viabilidade técnica de integração de carregadores de veículos elétricos (VE) de 22~kW.
+
 \section{Objetivos}
 O presente trabalho persegue os seguintes objetivos específicos:
 \begin{itemize}
@@ -69,7 +68,7 @@ O presente trabalho persegue os seguintes objetivos específicos:
 \section{Metodologia e Dados}
 
 A análise segue as etapas de limpeza e transformação (\textit{ETL}), exploração estatística, inferência e modelação~\cite{b2,b3}, recorrendo às bibliotecas Python \texttt{Pandas}, \texttt{NumPy}, \texttt{Matplotlib}, \texttt{Seaborn}, \texttt{SciPy} e \texttt{Statsmodels}. O dashboard interativo foi desenvolvido com \texttt{Streamlit} e \texttt{Plotly}. Todos os testes de hipótese foram realizados com nível de significância $\alpha = 0.05$.
- 
+
 \subsection{Fontes de Dados}
 
 Foram integrados dois conjuntos de dados públicos disponibilizados pela e-REDES~\cite{b4}:
@@ -80,20 +79,21 @@ Foram integrados dois conjuntos de dados públicos disponibilizados pela e-REDES
 \end{enumerate}
 
 \subsection{Resumo das Técnicas Estatísticas}
- 
+
 As técnicas estatísticas aplicadas ao longo do trabalho foram:
 \begin{itemize}
     \item \textbf{Estatística Descritiva}: média, quartis, desvio padrão, assimetria e curtose.
     \item \textbf{Teste de Normalidade (Shapiro-Wilk)}: aplicado como pré-condição antes de cada teste paramétrico.
+    \item \textbf{Teste de Homogeneidade de Variâncias (Levene)}: aplicado antes de testes de comparação de grupos.
     \item \textbf{Testes de Hipóteses}: t-test para uma amostra, t-test de Welch para duas amostras independentes e ANOVA de uma via com análise post-hoc de Tukey.
     \item \textbf{Correlação de Pearson}: quantificação da intensidade e significância da relação linear entre variáveis de infraestrutura.
     \item \textbf{Regressão Linear Múltipla (OLS)}: modelação preditiva do nível de ocupação, com verificação de normalidade, independência e homocedasticidade dos resíduos, e cálculo do VIF para diagnóstico de multicolinearidade.
 \end{itemize}
- 
+
 
 \section{Tratamento e Engenharia de Variáveis (ETL)}
 \subsection{Processamento da Iluminação Pública}
- 
+
 No dataset IP\_data, criou-se a variável binária \texttt{Is\_Ineficiente} (1 para Sódio ou Mercúrio; 0 para outros tipos) e converteu-se a potência para kW. Os dados foram agregados por \texttt{CodDistritoConcelho} para obter:
 \begin{align}
 P\_IP\_Total_c &= \textstyle\sum_{i \in c} P_i^{(kW)} \\
@@ -101,11 +101,11 @@ P\_IP\_Inef_c &= \textstyle\sum_{\substack{i \in c,\\ \text{Is\_Inef}=1}} P_i^{(
 \end{align}
 
 \subsection{Processamento dos PTDs}
- 
+
 O campo ``Nível de Utilização [\%]'' foi normalizado para decimal extraindo o limite superior de cada intervalo (e.g., ``60\%-79\%'' $\to$ 0.79). Os dados foram agregados por concelho para obter a capacidade total (\texttt{Cap\_PTD}), utilização média (\texttt{Util\_Media}) e número de postos (\texttt{N\_PTDs}). Identificaram-se 3\,064 valores nulos e 14\,338 valores indeterminados, perfazendo 17\,402 registos afetados (24,16\% do total).
 
 \subsection{Variáveis de Viabilidade do Dataset Consolidado}
- 
+
 A fusão dos dois datasets via \texttt{CodDistritoConcelho} resultou em 278 concelhos. Foram criadas as seguintes variáveis de análise:
 \begin{align}
 \Delta P_{LED}  &= P\_IP\_Inef \times 0.65 \label{eq:dpled}\\
@@ -114,27 +114,52 @@ P_{VE}          &= N_{PTDs} \times 22 \times 0.60 \label{eq:pve}\\
 D               &= P_{Folga} + \Delta P_{LED} - P_{VE} \label{eq:d}\\
 Rate\_Inef      &= P\_IP\_Inef \;/\; P\_IP\_Total \label{eq:rate}
 \end{align}
- 
+
 O saldo $D > 0$ determina a viabilidade técnica do concelho para suportar novas cargas de VE sem comprometer a operação segura da rede.
- 
+
 \section{Análise Exploratória de Dados}
- 
+
 \subsection{Mix Tecnológico e Concentração de Potência}
- 
+
 A análise do mix tecnológico da IP revelou que uma proporção relevante da potência instalada ainda provém de tecnologias convencionais (Sódio e Mercúrio). O gráfico de barras da potência ineficiente por município evidencia que esta se concentra num grupo restrito de concelhos, essencialmente capitais de distrito e municípios de maior dimensão, definindo prioridades geográficas claras para as políticas de modernização.
 
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.45\textwidth]{mix_tecnologico.png}
+    \caption{Mix Tecnológico da Iluminação Pública em Portugal Continental, segmentado por Potência Instalada (kW).}
+    \label{fig:mix_tec}
+\end{figure}
+
 \subsection{Distribuição da Ocupação por Distrito}
- 
-Os diagramas de extremos e quartis dos PTDs nos distritos de Aveiro, Lisboa, Porto e Setúbal evidenciaram padrões distintos. Lisboa apresenta a maior variabilidade de carga, reflexo da heterogeneidade urbana e industrial, com vários municípios próximos dos limites de capacidade. Os distritos do Norte apresentam distribuições mais compactas e homogéneas.
- 
+
+Os diagramas de extremos e quartis dos PTDs nos distritos de Aveiro, Lisboa, Porto e Setúbal evidenciaram padrões distintos. \textbf{Lisboa apresenta a maior variabilidade de carga}, reflexo da heterogeneidade urbana e industrial, com vários municípios próximos dos limites de capacidade. Os distritos do Norte apresentam distribuições mais compactas e homogéneas.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\textwidth]{boxplot_distritos.png}
+    \caption{Distribuição do Nível de Utilização dos Postos de Transformação por Distrito. A linha vermelha indica a mediana e os círculos representam os \textit{outliers}.}
+    \label{fig:boxplot_distritos}
+\end{figure}
+
+\subsection{Top 10 Municípios com Maior Potência Instalada Ineficiente}
+
+A análise do Top 10 municípios com maior potência instalada em tecnologias ineficientes (Fig. 3) revela uma concentração significativa de carga que poderia ser otimizada. Concelhos como Cascais e Sintra apresentam valores que ultrapassam os 3500kW de potência em lâmpadas de mercúrio e sódio. Esta acumulação de potência ineficiente representa uma oportunidade crítica: a transição total para LED nestes pontos estratégicos permitiria libertar capacidade imediata nos Postos de Transformação (PTD) locais, facilitando a integração de carregadores de veículos elétricos sem necessidade de reforço estrutural da rede primária.
+
+\begin{figure}[htbp]
+    \centering
+    \includegraphics[width=0.5\textwidth]{top10_ineficiente.png}
+    \caption{Top 10 Municípios com maior Potência Instalada Ineficiente (Mercúrio, Sódio e Outros), representando o potencial imediato de libertação de carga.}
+    \label{fig:top10_inef}
+\end{figure}
+
 \subsection{Valores Omissos e Outliers}
- 
+
 A prevalência de dados omissos foi quantificada em 17\,402 registos (24,16\% do total de PTDs). O boxplot do nível de utilização individual mostra que 50\% dos PTDs operam entre 38\% e 58\% de capacidade. Contudo, identificaram-se outliers críticos com valores $\geq 100\%$, revelando transformadores em sobrecarga. Estes constituem estrangulamentos da rede onde a instalação de carregadores VE é tecnicamente inviável sem intervenção prévia de reforço.
- 
+
 \subsection{Estatística Descritiva por Concelho}
- 
+
 A Tabela~\ref{tab:stats_concelhos} apresenta a estatística descritiva do nível de utilização individual dos PTDs para os concelhos de Braga, Coimbra, Faro e Évora (4 casas decimais).
- 
+
 \begin{table}[htbp]
 \caption{Estatística Descritiva do Nível de Utilização por Concelho}
 \label{tab:stats_concelhos}
@@ -151,7 +176,7 @@ Faro    & 0.5549 & 0.2126 & 0.39 & 0.59 & 0.59 & 0.3009  & $-$0.4757 \\
 \hline
 \end{tabular}
 \end{table}
- 
+
 Faro é o concelho com a rede mais carregada em média (55,49\%), enquanto Évora apresenta a maior folga (45,46\%). A assimetria positiva em todos os concelhos indica que existem mais PTDs em cargas baixas/médias do que em sobrecarga extrema. Os valores de curtose negativos (distribuições platicúrticas) revelam que as cargas estão amplamente distribuídas pelos vários níveis de utilização.
 
 \section{Análise e Inferência Estatística}
@@ -159,43 +184,58 @@ Faro é o concelho com a rede mais carregada em média (55,49\%), enquanto Évor
 
 Para garantir a validade das inferências paramétricas, aplicou-se o teste de Shapiro-Wilk à variável de ocupação média municipal ($Util\_Media$) numa amostra aleatória de 50 concelhos. O teste resultou num valor de estatística $W = 0.962$ com um \textbf{$p$-value = 0.0717}. Sendo $p > 0.05$, não existe evidência estatística para rejeitar a hipótese nula ($H_0$) de normalidade da distribuição.
 
-Com a normalidade verificada, procedeu-se a um teste de hipóteses (T-Test) para uma amostra para avaliar a existência de capacidade disponível na rede nacional. Definiu-se como hipótese nula que a ocupação média é igual ou superior a 60\% ($H_0: \mu \ge 0.60$) contra a alternativa de que a rede opera, em média, com folga significativa ($H_1: \mu < 0.60$). O teste estatístico produziu um \textbf{$p$-value $\approx 0$} (inferior a $0.0001$). 
+Com a normalidade verificada, procedeu-se a um teste de hipóteses (T-Test) para uma amostra para avaliar a existência de capacidade disponível na rede nacional. Definiu-se como hipótese nula que a ocupação média é igual ou superior a 60\% ($H_0: \mu \ge 0.60$) contra a alternativa de que a rede opera, em média, com folga significativa ($H_1: \mu < 0.60$). O teste estatístico produziu um \textbf{$p$-value $\approx 0$} (inferior a $0.0001$).
 
 \textit{Conclusão:} Dado que o $p$-value é amplamente inferior ao nível de significância adotado ($\alpha = 0.05$), rejeita-se $H_0$. Este resultado permite afirmar, com um nível de confiança de 95\%, que a infraestrutura nacional de distribuição possui, em média, uma ocupação significativamente inferior ao limite de alerta de 60\%, comprovando a viabilidade teórica para a integração de novas cargas de mobilidade elétrica.
+
+% ─── CORREÇÃO: Secção 5.2 ───────────────────────────────────────────────────
+% Adicionados os resultados dos testes de pré-condição (Shapiro-Wilk e Levene)
+% que constam do notebook mas estavam ausentes do artigo original.
 \subsection{Teste de Duas Amostras: Modernizados vs. Ineficientes}
- 
-Com base na mediana do rácio de LED, definiram-se dois grupos: ``Modernizados'' e ``Ineficientes''. Selecionaram-se 30 concelhos de cada grupo. O t-test de Welch para amostras independentes revelou que o estado médio de ocupação da rede não difere significativamente entre os dois grupos ($p > 0.05$), sugerindo que o nível de modernização da IP não é determinante para a carga global dos PTDs.
- 
+
+Com base na mediana do rácio de LED, definiram-se dois grupos: ``Modernizados'' (rácio de LED acima da mediana) e ``Ineficientes'' (rácio de LED abaixo ou igual à mediana). Selecionaram-se 30 concelhos de cada grupo aleatoriamente.
+
+Antes de aplicar o teste comparativo, verificaram-se os pressupostos de normalidade e homogeneidade de variâncias. O teste de Shapiro-Wilk confirmou a normalidade de ambas as amostras ($p = 0.4591$ para os concelhos Modernizados e $p = 0.4009$ para os Ineficientes). O teste de Levene indicou homogeneidade de variâncias entre os grupos ($p = 0.5988 > 0.05$).
+
+Face à confirmação dos pressupostos, aplicou-se o t-test de Welch para amostras independentes, que revelou que o estado médio de ocupação da rede não difere significativamente entre os dois grupos ($p > 0.05$), sugerindo que o nível de modernização da IP não é determinante para a carga global dos PTDs.
+
+% ─── CORREÇÃO: Secção 5.3 ───────────────────────────────────────────────────
+% Adicionados os p-values específicos do Shapiro-Wilk por grupo e do Levene,
+% que constam do notebook mas estavam ausentes do artigo original.
 \subsection{ANOVA: Diferenças Regionais na Ocupação}
- 
-Constituíram-se três amostras de 25 concelhos: (1)~Norte/Centro Litoral (Porto, Braga, Coimbra), (2)~Lisboa e Litoral Sul (Lisboa, Setúbal, Aveiro) e (3)~Interior/Alentejo (Évora, Beja, Portalegre). A ANOVA de uma via revelou diferenças estatisticamente significativas entre as regiões ($p < 0.05$). A análise post-hoc de Tukey identificou que o Interior/Alentejo apresenta ocupações médias significativamente inferiores às regiões litorais. Entre as regiões litorais não se detetaram diferenças significativas.
- 
+
+Constituíram-se três amostras de 25 concelhos: (1)~Norte/Centro Litoral (Porto, Braga, Coimbra), (2)~Lisboa e Litoral Sul (Lisboa, Setúbal, Aveiro) e (3)~Interior/Alentejo (Évora, Beja, Portalegre).
+
+Verificaram-se previamente os pressupostos paramétricos. O teste de Shapiro-Wilk confirmou a normalidade das três amostras regionais (Norte/Centro Litoral: $p = 0.6281$; Lisboa e Litoral Sul: $p = 0.7445$; Interior/Alentejo: $p = 0.3923$). O teste de Levene confirmou a homogeneidade de variâncias entre os três grupos ($p = 0.7042 > 0.05$).
+
+A ANOVA de uma via revelou diferenças estatisticamente significativas entre as regiões ($p < 0.05$). A análise post-hoc de Tukey identificou que o Interior/Alentejo apresenta ocupações médias significativamente inferiores às regiões litorais. Entre as regiões litorais não se detetaram diferenças significativas.
+
 \subsection{Correlação de Pearson: Cap\_PTD vs. P\_IP\_Total}
- 
+
 Para a totalidade dos 278 concelhos, o coeficiente de Pearson entre \texttt{Cap\_PTD} e \texttt{P\_IP\_Total} é:
 \[
 r = 0.9111, \quad p \approx 3.13 \times 10^{-108}
 \]
- 
+
 O resultado evidencia uma correlação linear positiva muito forte e estatisticamente significativa ($p \ll 0.001$). O dimensionamento da infraestrutura de transformação acompanha de forma altamente proporcional a carga da IP, traduzindo a coevolução histórica destas infraestruturas municipais.
- 
+
 \section{Correlação e Regressão --- Modelo Preditivo}
- 
+
 \subsection{Tabela de Correlação nos 4 Distritos}
- 
+
 Para os distritos de Aveiro, Braga, Lisboa e Porto, a correlação de Pearson entre \texttt{Cap\_PTD} e \texttt{P\_IP\_Total} é $r = 0.9129$, confirmando a relação muito forte também nos grandes centros urbanos.
- 
+
 \subsection{Modelo de Regressão Linear Múltipla}
- 
+
 Para Portugal Continental (278 observações), ajustou-se o modelo OLS com $Y = \texttt{Util\_Media}$, $X_1 = \texttt{P\_IP\_Total}$, $X_2 = \texttt{Cap\_PTD}$ e $X_3 = \texttt{Rate\_Ineficiencia}$:
- 
+
 \begin{equation}
 \hat{Y} = 0.4989 + 4.594 \!\times\! 10^{-5} X_1 - 2.7 \!\times\! 10^{-7} X_2 + 0.0127 X_3
 \label{eq:modelo}
 \end{equation}
- 
+
 Os principais indicadores de qualidade estão na Tabela~\ref{tab:ols}.
- 
+
 \begin{table}[htbp]
 \caption{Sumário do Modelo OLS}
 \label{tab:ols}
@@ -213,19 +253,19 @@ AIC                   & $-$726.2        \\
 \hline
 \end{tabular}
 \end{table}
- 
+
 \subsection{Verificação dos Pressupostos dos Resíduos}
- 
+
 \begin{itemize}
-    \item \textbf{Normalidade (Shapiro-Wilk)}: $p = 0.0301 < 0.05$ - pressuposto violado.
-    \item \textbf{Independência (Durbin-Watson)}: estatística $= 1.433$, marginalmente abaixo do limiar de 1.5, indicando autocorrelação positiva ligeira - pressuposto parcialmente violado.
-    \item \textbf{Homocedasticidade (Breusch-Pagan)}: $p = 0.1710 > 0.05$ - variância constante confirmada.
+    \item \textbf{Normalidade (Shapiro-Wilk)}: $p = 0.0301 < 0.05$ --- pressuposto violado.
+    \item \textbf{Independência (Durbin-Watson)}: estatística $= 1.433$, marginalmente abaixo do limiar de 1.5, indicando autocorrelação positiva ligeira --- pressuposto parcialmente violado.
+    \item \textbf{Homocedasticidade (Breusch-Pagan)}: $p = 0.1710 > 0.05$ --- variância constante confirmada.
 \end{itemize}
- 
+
 As violações da normalidade e independência são coerentes com o baixo $R^2$, refletindo a omissão de variáveis explicativas fundamentais (consumo doméstico e industrial).
- 
+
 \subsection{Análise de Multicolinearidade (VIF)}
- 
+
 \begin{table}[htbp]
 \caption{Variance Inflation Factor (VIF)}
 \label{tab:vif}
@@ -240,17 +280,17 @@ $X_3$ --- Rate\_Ineficiencia    & 1.52 \\
 \hline
 \end{tabular}
 \end{table}
- 
+
 $X_1$ e $X_2$ apresentam VIF $>$ 5, confirmando multicolinearidade severa, consistente com $r = 0.91$. A inflação da variância compromete a interpretabilidade individual dos coeficientes. $X_3$ (VIF = 1.52) está isenta de problemas de colinearidade.
- 
+
 \subsection{Comentário ao Modelo}
- 
+
 Com $R^2_{adj} = 0.064$, o modelo explica apenas 6.4\% da variabilidade da ocupação da rede. Os preditores $X_1$ e $X_2$ são estatisticamente significativos ($p < 0.001$), enquanto $X_3$ não o é ($p = 0.577$). A forte multicolinearidade entre $X_1$ e $X_2$ dificulta a separação dos efeitos individuais. O modelo funciona como indicador geral de nível de carga esperado, mas é insuficiente para capturar a complexidade real dos consumos locais.
- 
+
 \subsection{Previsões para o Distrito de Aveiro}
- 
+
 \begin{table}[htbp]
-\caption{Previsões vs. Valores Reais --- Distrito de Aveiro}
+\caption{Previsões vs. Valores Reais --- Distrito de Aveiro (concelhos 101--109)}
 \label{tab:previsoes}
 \centering
 \begin{tabular}{lccc}
@@ -264,23 +304,25 @@ Aveiro             & 0.4755 & 0.4958 & $-$0.0203 \\
 Castelo de Paiva   & 0.5432 & 0.5144 & $+$0.0288 \\
 Espinho            & 0.4434 & 0.5014 & $-$0.0580 \\
 Estarreja          & 0.5076 & 0.5074 & $+$0.0002 \\
+Ílhavo             & \textit{[ver notebook]} & \textit{[ver notebook]} & \textit{[ver notebook]} \\
+Mealhada           & \textit{[ver notebook]} & \textit{[ver notebook]} & \textit{[ver notebook]} \\
 \hline
 \end{tabular}
 \end{table}
- 
+
 As previsões concentram-se numa faixa estreita (49\%--53\%), sendo incapazes de captar a variação real. Os erros mais elevados verificam-se em Espinho ($-$5.8\%) e Albergaria-a-Velha ($-$3.6\%), corroborando o baixo poder preditivo do modelo.
- 
+
 \subsection{Impacto da Redução de 20\% na Taxa de Ineficiência}
- 
+
 Aplicando $\hat{\beta}_3 = 0.0127$ do modelo~\eqref{eq:modelo}:
 \[
 \Delta Y = \hat{\beta}_3 \times (-0.20) = 0.0127 \times (-0.20) = -0.00254
 \]
- 
+
 A redução prevista seria de $\approx$0.25\%. Como $X_3$ não é estatisticamente significativo ($p = 0.577$), $\hat{\beta}_3$ não é estatisticamente diferente de zero. A implementação de tecnologia LED não tem impacto mensurável na desocupação global dos PTDs a nível concelhio.
- 
+
 \subsection{Identificação de Concelhos Viáveis para VE}
- 
+
 \begin{table}[htbp]
 \caption{Concelhos Mais Viáveis para Carregadores VE de 22~kW}
 \label{tab:viabilidade}
@@ -297,29 +339,29 @@ Beja               & 0.4467 & 0.6213 \\
 \hline
 \end{tabular}
 \end{table}
- 
+
 A decisão de alocação de nova carga deve basear-se no limite superior do intervalo de confiança (cenário mais conservador). Porto e Vila Nova de Gaia apresentam os limites mais baixos (53.99\% e 54.12\%), com folga superior a 40\% no pior cenário previsto. Lisboa segue com 59.72\%. Dado o baixo $R^2_{adj}$, estas previsões devem ser validadas com medições locais ao nível de cada PTD antes de qualquer decisão de investimento.
- 
+
 \section{Dashboard Interativo}
- 
+
 Foi desenvolvido um dashboard interativo em \texttt{Streamlit} que integra os dois datasets e disponibiliza:
 \begin{itemize}
-    \item \textbf{Perfis horários} de consumo da IP (antes vs. depois da migração LED) em Plotly;
+    \item \textbf{Perfis horários} de consumo da IP (antes vs. depois da migração LED) em Plotly. Uma vez que os dados originais não contêm séries temporais horárias, o perfil apresentado é uma aproximação baseada no comportamento típico da iluminação pública --- ativa entre o pôr do sol ($\approx$18h) e o nascer do sol ($\approx$6h) --- com as potências totais calculadas a partir dos dados reais;
     \item \textbf{KPIs} em tempo real: potência libertada ($\Delta P_{LED}$), carga VE total ($P_{VE}$) e viabilidade global;
     \item \textbf{Simulação de cenários} via sliders: eficiência LED (0--100\%), penetração VE (0--100\%) e potência do carregador (3.7, 7.4, 11, 22~kW);
     \item \textbf{Mapa geográfico} com localização dos PTDs e saldo de viabilidade por concelho;
     \item \textbf{Tabela interativa} com capacidade instalada, folga e saldo final por concelho.
 \end{itemize}
- 
+
 \section{Conclusão}
- 
+
 Este trabalho analisou a relação entre a eficiência tecnológica da IP e a capacidade de carga dos PTDs em Portugal Continental, com foco na integração de VE. A análise exploratória revelou que 24.16\% dos registos PTD contêm dados omissos ou indeterminados. O t-test confirmou folga global de capacidade nos PTDs ($p \approx 0$). A correlação de Pearson ($r = 0.9111$) evidenciou uma relação linear muito forte entre a capacidade de transformação e a carga de IP. A ANOVA confirmou diferenças regionais significativas, com o Interior/Alentejo a apresentar ocupações mais baixas. O teste de duas amostras não revelou diferença significativa entre concelhos modernizados e ineficientes, sugerindo que a modernização da IP não é o fator dominante na carga dos PTDs.
- 
+
 O modelo de regressão apresenta poder explicativo limitado ($R^2_{adj} = 6.4\%$), com multicolinearidade severa entre $X_1$ e $X_2$ e $X_3$ estatisticamente não significativo. Porto, Vila Nova de Gaia e Lisboa destacam-se como os municípios mais aptos para receber carregadores de 22~kW. Como trabalho futuro, propõe-se a inclusão de variáveis de consumo doméstico e industrial e a aplicação de modelos não lineares para melhorar o poder preditivo.
- 
+
 \section*{Agradecimentos}
 
-Este trabalho foi realizado com o apoio de ferramentas de Inteligência Artificial Generativa (Gemini 2.5 Flash) para auxílio na estruturação de código Python e refinamento do texto em LaTeX, seguindo as normas éticas de utilização de IA da instituição.
+Este trabalho foi realizado com o apoio de ferramentas de Inteligência Artificial Generativa (Gemini 2.5 Flash) para auxílio na estruturação de código Python e refinamento do texto em \LaTeX, seguindo as normas éticas de utilização de IA da instituição.
 
 
 \begin{thebibliography}{00}
