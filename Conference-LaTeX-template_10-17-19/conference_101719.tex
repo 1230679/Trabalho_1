@@ -188,27 +188,38 @@ Com a normalidade verificada, procedeu-se a um teste de hipóteses (T-Test) para
 
 \textit{Conclusão:} Dado que o $p$-value é amplamente inferior ao nível de significância adotado ($\alpha = 0.05$), rejeita-se $H_0$. Este resultado permite afirmar, com um nível de confiança de 95\%, que a infraestrutura nacional de distribuição possui, em média, uma ocupação significativamente inferior ao limite de alerta de 60\%, comprovando a viabilidade teórica para a integração de novas cargas de mobilidade elétrica.
 
-% ─── CORREÇÃO: Secção 5.2 ───────────────────────────────────────────────────
-% Adicionados os resultados dos testes de pré-condição (Shapiro-Wilk e Levene)
-% que constam do notebook mas estavam ausentes do artigo original.
 \subsection{Teste de Duas Amostras: Modernizados vs. Ineficientes}
 
 Com base na mediana do rácio de LED, definiram-se dois grupos: ``Modernizados'' (rácio de LED acima da mediana) e ``Ineficientes'' (rácio de LED abaixo ou igual à mediana). Selecionaram-se 30 concelhos de cada grupo aleatoriamente.
 
 Antes de aplicar o teste comparativo, verificaram-se os pressupostos de normalidade e homogeneidade de variâncias. O teste de Shapiro-Wilk confirmou a normalidade de ambas as amostras ($p = 0.4591$ para os concelhos Modernizados e $p = 0.4009$ para os Ineficientes). O teste de Levene indicou homogeneidade de variâncias entre os grupos ($p = 0.5988 > 0.05$).
 
-Face à confirmação dos pressupostos, aplicou-se o t-test de Welch para amostras independentes, que revelou que o estado médio de ocupação da rede não difere significativamente entre os dois grupos ($p > 0.05$), sugerindo que o nível de modernização da IP não é determinante para a carga global dos PTDs.
+Face à confirmação dos pressupostos, aplicou-se o t-test de 
+Welch bilateral com $\alpha = 0.05$. O resultado obtido 
+($t = -0.8463$, $p = 0.4009$) não permitiu rejeitar a 
+hipótese nula. Conclui-se que o grau de modernização 
+tecnológica da IP não influencia significativamente 
+o nível de ocupação médio da rede elétrica.
 
-% ─── CORREÇÃO: Secção 5.3 ───────────────────────────────────────────────────
-% Adicionados os p-values específicos do Shapiro-Wilk por grupo e do Levene,
-% que constam do notebook mas estavam ausentes do artigo original.
 \subsection{ANOVA: Diferenças Regionais na Ocupação}
 
 Constituíram-se três amostras de 25 concelhos: (1)~Norte/Centro Litoral (Porto, Braga, Coimbra), (2)~Lisboa e Litoral Sul (Lisboa, Setúbal, Aveiro) e (3)~Interior/Alentejo (Évora, Beja, Portalegre).
 
 Verificaram-se previamente os pressupostos paramétricos. O teste de Shapiro-Wilk confirmou a normalidade das três amostras regionais (Norte/Centro Litoral: $p = 0.6281$; Lisboa e Litoral Sul: $p = 0.7445$; Interior/Alentejo: $p = 0.3923$). O teste de Levene confirmou a homogeneidade de variâncias entre os três grupos ($p = 0.7042 > 0.05$).
 
-A ANOVA de uma via revelou diferenças estatisticamente significativas entre as regiões ($p < 0.05$). A análise post-hoc de Tukey identificou que o Interior/Alentejo apresenta ocupações médias significativamente inferiores às regiões litorais. Entre as regiões litorais não se detetaram diferenças significativas.
+A ANOVA One-Way revelou diferenças estatisticamente 
+significativas entre os perfis regionais 
+($F = 30.0562$, $p < 0.001$), rejeitando-se a hipótese 
+nula. A análise post-hoc de Tukey HSD identificou 
+diferenças significativas entre o Interior/Alentejo 
+e o Norte/Centro Litoral ($p < 0.05$, $\Delta = 0.1109$) 
+e entre o Interior/Alentejo e Lisboa e Litoral Sul 
+($p < 0.05$, $\Delta = 0.0837$). Entre os dois grupos 
+litorais não se verificaram diferenças significativas 
+($p = 0.1687$). Estes resultados sugerem que as regiões 
+do interior apresentam ocupações consistentemente 
+inferiores às zonas litorais, refletindo uma menor 
+densidade de infraestrutura e de consumo energético.
 
 \subsection{Correlação de Pearson: Cap\_PTD vs. P\_IP\_Total}
 
